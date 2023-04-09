@@ -4,8 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-
-[dev-packages]
+fastapi = "*"
+uvicorn = "*"
+fastapi-sessions = "*"
+bcrypt = "*"
+sqlalchemy = "*"
+asyncpg = "*"
+httpx = "*"
+fastapi-security = "*"
+pydantic = "*"
+databases = "*"
 
 [requires]
 python_version = "3.10"
