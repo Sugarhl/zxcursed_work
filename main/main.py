@@ -24,4 +24,4 @@ app.include_router(registration_router, prefix="/registration", tags=["Registrat
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the FastAPI project"}
+    return {"message": "Welcome!"}
