@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 import jwt
 
-import crud
-import schemas
-from database import get_db
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+import server.crud as crud
+import server.schemas as schemas
+from server.database import get_db
+from server.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
 

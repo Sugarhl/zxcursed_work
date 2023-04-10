@@ -1,8 +1,0 @@
-schemas~=0.7.1
-sqlalchemy~=1.4.47
-fastapi~=0.95.0
-python-dotenv~=1.0.0
-pydantic~=1.10.7
-databases~=0.7.0
-bcrypt~=4.0.1
-pytest~=7.3.0

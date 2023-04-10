@@ -4,10 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from fastapi.security import OAuth2PasswordBearer
 import bcrypt
 
-from schemas import UserIn, UserOut
-from main.models import User, Student, Tutor
-from main.database import async_engine
-from main.crud import create_user, get_user_by_username
+from server.schemas import UserIn, UserOut
+from server.models import User, Student, Tutor
+from server.database import async_engine
+from server.crud import create_user, get_user_by_username
 
 router = APIRouter()
 

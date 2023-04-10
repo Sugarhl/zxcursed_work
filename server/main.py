@@ -1,8 +1,11 @@
 from fastapi import FastAPI, Depends
-from database import async_engine, Base, async_database, get_db
-from login import router as login_router
-from registration import router as registration_router
+from server.database import async_engine, Base, async_database, get_db
+from server.login import router as login_router
+from server.registration import router as registration_router
+import gevent.monkey
 
+
+gevent.monkey.patch_all(select=True)
 app = FastAPI()
 
 

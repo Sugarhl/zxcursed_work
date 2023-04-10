@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, CheckConstraint, DateTime
 from sqlalchemy.orm import relationship
-from database import Base
+from server.database import Base
 
 
 class Lab(Base):
