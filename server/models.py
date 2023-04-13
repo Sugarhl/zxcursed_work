@@ -4,7 +4,7 @@ from server.database import Base
 
 
 class Lab(Base):
-    __tablename__ = "Lab"
+    __tablename__ = "lab"
     id = Column(Integer, primary_key=True, index=True)
     lab_name = Column(String(255), nullable=False)
     description = Column(String)
@@ -13,7 +13,7 @@ class Lab(Base):
 
 
 class Tutor(Base):
-    __tablename__ = "Tutor"
+    __tablename__ = "tutor"
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
@@ -21,7 +21,7 @@ class Tutor(Base):
 
 
 class Student(Base):
-    __tablename__ = "Student"
+    __tablename__ = "student"
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
@@ -29,7 +29,7 @@ class Student(Base):
 
 
 class User(Base):
-    __tablename__ = "LoginCredentials"
+    __tablename__ = "login_creds"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, nullable=False)
     user_type = Column(String(50), nullable=False, index=True)
@@ -39,9 +39,9 @@ class User(Base):
 
 
 class LabVariant(Base):
-    __tablename__ = "LabVariant"
+    __tablename__ = "lab_var"
     id = Column(Integer, primary_key=True, index=True)
-    lab_id = Column(Integer, ForeignKey("Lab.id", ondelete="CASCADE"), nullable=False)
+    lab_id = Column(Integer, ForeignKey("lab.id", ondelete="CASCADE"), nullable=False)
     variant_name = Column(String(255), nullable=False)
     description = Column(String)
     lab = relationship("Lab", back_populates="variants")
@@ -51,9 +51,9 @@ Lab.variants = relationship("LabVariant", order_by=LabVariant.id, back_populates
 
 
 class LabSolution(Base):
-    __tablename__ = "LabSolution"
+    __tablename__ = "lab_solution"
     id = Column(Integer, primary_key=True, index=True)
-    lab_variant_id = Column(Integer, ForeignKey("LabVariant.id", ondelete="CASCADE"), nullable=False)
+    lab_variant_id = Column(Integer, ForeignKey("lab_var.id", ondelete="CASCADE"), nullable=False)
     solution_text = Column(String)
     lab_variant = relationship("LabVariant", back_populates="solutions")
 
@@ -62,10 +62,10 @@ LabVariant.solutions = relationship("LabSolution", order_by=LabSolution.id, back
 
 
 class LabResult(Base):
-    __tablename__ = "LabResult"
+    __tablename__ = "lab_result"
     id = Column(Integer, primary_key=True, index=True)
-    student_id = Column(Integer, ForeignKey("Student.id", ondelete="CASCADE"), nullable=False)
-    lab_variant_id = Column(Integer, ForeignKey("LabVariant.id", ondelete="CASCADE"), nullable=False)
+    student_id = Column(Integer, ForeignKey("student.id", ondelete="CASCADE"), nullable=False)
+    lab_variant_id = Column(Integer, ForeignKey("lab_var.id", ondelete="CASCADE"), nullable=False)
     score = Column(Integer)
     submission_date = Column(DateTime)
     student = relationship("Student", back_populates="lab_results")

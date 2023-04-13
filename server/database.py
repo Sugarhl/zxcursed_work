@@ -1,34 +1,19 @@
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import MetaData
+
 import databases
-import os
-
-DATABASE_URL = "sqlite+aiosqlite:///./test.db"
-DB_FILE = "./test.db"
-
-async_engine = create_engine(DATABASE_URL, echo=True)
+# from .config import DATABASE_URL
+DATABASE_URL = "postgresql+asyncpg://user:vikisah01@rc1b-8aubff9hb0epodpz.mdb.yandexcloud.net:6432/tasks_manager"
+async_engine = create_async_engine(DATABASE_URL, echo=True)
 async_database = databases.Database(DATABASE_URL)
-Base = declarative_base()
 
-# Create a session factory for synchronous operations
-sync_engine = create_engine(DATABASE_URL.replace("+aiosqlite", ""), echo=True)
+SCHEMA = "lab_management"
+Base = declarative_base(metadata=MetaData(schema=SCHEMA))
 
-SessionFactory = sessionmaker(autocommit=False, autoflush=False, bind=sync_engine)
+AsyncSessionFactory = sessionmaker(autocommit=False, autoflush=False, bind=async_engine, class_=AsyncSession)
 
-
-def get_db():
-    db = SessionFactory()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def create_database_tables():
-    Base.metadata.create_all(sync_engine)
-
-
-# Check if the database file exists, and create tables if it doesn't
-if not os.path.isfile(DB_FILE):
-    create_database_tables()
+async def get_db():
+    async with AsyncSessionFactory() as session:
+        yield session

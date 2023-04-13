@@ -15,13 +15,15 @@ fastapi-security = "*"
 pydantic = "*"
 databases = "*"
 python-dotenv = "*"
-aiosqlite = "*"
 jwt = "*"
 python-multipart = "*"
-gevent = "==1.5.0"
+gevent = "*"
 psutil = "*"
 greenlet = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.10"
-python_full_version = "3.10.9"
+
+[dev-packages]
+autopep8 = "*"

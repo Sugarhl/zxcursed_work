@@ -1,53 +1,52 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 import server.models as models
 import server.schemas as schemas
 
 
-def create_user(db: Session, user: schemas.UserIn, user_type: str):
-    db_user = models.User(
-        user_id=user.id,
-        user_type=user_type,
-        username=user.username,
-        password=user.password,
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+async def create_user(db: AsyncSession, user: models.User):
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
 
 
-def create_student(db: Session, student: schemas.UserIn):
+async def create_student(db: AsyncSession, student: schemas.UserIn):
     db_student = models.Student(
         first_name=student.first_name,
         last_name=student.last_name,
         email=student.email,
     )
     db.add(db_student)
-    db.commit()
-    db.refresh(db_student)
+    await db.commit()
+    await db.refresh(db_student)
     return db_student
 
 
-def create_tutor(db: Session, tutor: schemas.UserIn):
+async def create_tutor(db: AsyncSession, tutor: schemas.UserIn):
     db_tutor = models.Tutor(
         first_name=tutor.first_name,
         last_name=tutor.last_name,
         email=tutor.email,
     )
     db.add(db_tutor)
-    db.commit()
-    db.refresh(db_tutor)
+    await db.commit()
+    await db.refresh(db_tutor)
     return db_tutor
 
 
-def get_user_by_username(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).first()
+async def get_user_by_username(db: AsyncSession, username: str):
+    stmt = select(models.User).where(models.User.username == username)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
 
-def get_user(db: Session, user_id: int, user_type: str):
+async def get_user(db: AsyncSession, user_id: int, user_type: str):
     if user_type == "Student":
-        return db.query(models.Student).filter(models.Student.id == user_id).first()
+        stmt = select(models.Student).where(models.Student.id == user_id)
     elif user_type == "Tutor":
-        return db.query(models.Tutor).filter(models.Tutor.id == user_id).first()
+        stmt = select(models.Tutor).where(models.Tutor.id == user_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
 # Add more CRUD operations for other models (Lab, LabVariant, LabSolution, LabResult) as needed.
