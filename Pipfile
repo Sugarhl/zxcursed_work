@@ -15,12 +15,12 @@ fastapi-security = "*"
 pydantic = "*"
 databases = "*"
 python-dotenv = "*"
-jwt = "*"
 python-multipart = "*"
 gevent = "*"
 psutil = "*"
 greenlet = "*"
 psycopg2-binary = "*"
+pyjwt = "*"
 
 [requires]
 python_version = "3.10"

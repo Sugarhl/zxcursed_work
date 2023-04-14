@@ -35,6 +35,7 @@ class User(Base):
     user_type = Column(String(50), nullable=False, index=True)
     username = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
+    salt = Column(String(255), nullable=False)
     CheckConstraint("user_type IN ('Student', 'Tutor')")
 
 

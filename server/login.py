@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import timedelta
 import jwt
 
-import server.crud as crud
+from server.crud import get_user_by_username_with_salt, get_user_by_username, verify_password
 import server.schemas as schemas
 from server.database import get_db
 from server.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
@@ -15,17 +15,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 def create_access_token(user_id: int, user_type: str):
-    expire = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES).total_seconds()
     to_encode = {"user_id": user_id, "user_type": user_type, "exp": expire}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 async def authenticate_user(db: AsyncSession, username: str, password: str):
-    user = crud.get_user_by_username(db, username)
+    user = await get_user_by_username(db, username)
     if not user:
         return False
-    if not user.password == password:
+    if not verify_password(password, user.salt, user.password):
         return False
     return user
 

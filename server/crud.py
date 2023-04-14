@@ -17,7 +17,8 @@ async def create_user(db: AsyncSession, user_in: schemas.UserIn, user_type: str,
     user = models.User(user_id=user_id,
                        user_type=user_type,
                        username=user_in.username,
-                       password=hashed_password.decode("utf-8"))
+                       password=hashed_password.decode("utf-8"),
+                       salt=salt)
     db.add(user)
     await db.commit()
     await db.refresh(user)
@@ -53,13 +54,15 @@ async def get_user_by_username(db: AsyncSession, username: str):
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
-
-async def get_user(db: AsyncSession, user_id: int, user_type: str):
-    if user_type == "Student":
-        stmt = select(models.Student).where(models.Student.id == user_id)
-    elif user_type == "Tutor":
-        stmt = select(models.Tutor).where(models.Tutor.id == user_id)
-    result = await db.execute(stmt)
-    return result.scalar_one_or_none()
-
 # Add more CRUD operations for other models (Lab, LabVariant, LabSolution, LabResult) as needed.
+
+
+async def get_user_by_username_with_salt(db: AsyncSession, username: str):
+    stmt = select(models.User.username, models.User.password, models.User.salt,
+                  models.User.id, models.User.user_type).where(models.User.username == username)
+    result = await db.execute(stmt)
+    return result.fetchone()
+
+
+async def verify_password(password: str, salt: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8")) and bcrypt.checkpw(salt.encode("utf-8"), hashed_password.encode("utf-8"))
