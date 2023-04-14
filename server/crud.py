@@ -1,17 +1,30 @@
+import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 import server.models as models
 import server.schemas as schemas
 
 
-async def create_user(db: AsyncSession, user: models.User):
+def generate_salt() -> str:
+    return bcrypt.gensalt().decode("utf-8")
+
+
+async def create_user(db: AsyncSession, user_in: schemas.UserIn, user_type: str, user_id: int) -> int:
+    salt = generate_salt()
+    hashed_password = bcrypt.hashpw(
+        user_in.password.encode("utf-8"), salt.encode("utf-8"))
+
+    user = models.User(user_id=user_id,
+                       user_type=user_type,
+                       username=user_in.username,
+                       password=hashed_password.decode("utf-8"))
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    return user
+    return user.id
 
 
-async def create_student(db: AsyncSession, student: schemas.UserIn):
+async def create_student(db: AsyncSession, student: schemas.UserIn) -> int:
     db_student = models.Student(
         first_name=student.first_name,
         last_name=student.last_name,
@@ -20,10 +33,10 @@ async def create_student(db: AsyncSession, student: schemas.UserIn):
     db.add(db_student)
     await db.commit()
     await db.refresh(db_student)
-    return db_student
+    return db_student.id
 
 
-async def create_tutor(db: AsyncSession, tutor: schemas.UserIn):
+async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> int:
     db_tutor = models.Tutor(
         first_name=tutor.first_name,
         last_name=tutor.last_name,
@@ -32,7 +45,7 @@ async def create_tutor(db: AsyncSession, tutor: schemas.UserIn):
     db.add(db_tutor)
     await db.commit()
     await db.refresh(db_tutor)
-    return db_tutor
+    return db_tutor.id
 
 
 async def get_user_by_username(db: AsyncSession, username: str):

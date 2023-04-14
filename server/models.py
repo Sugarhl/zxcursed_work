@@ -41,36 +41,44 @@ class User(Base):
 class LabVariant(Base):
     __tablename__ = "lab_var"
     id = Column(Integer, primary_key=True, index=True)
-    lab_id = Column(Integer, ForeignKey("lab.id", ondelete="CASCADE"), nullable=False)
+    lab_id = Column(Integer, ForeignKey(
+        "lab.id", ondelete="CASCADE"), nullable=False)
     variant_name = Column(String(255), nullable=False)
     description = Column(String)
     lab = relationship("Lab", back_populates="variants")
 
 
-Lab.variants = relationship("LabVariant", order_by=LabVariant.id, back_populates="lab")
+Lab.variants = relationship(
+    "LabVariant", order_by=LabVariant.id, back_populates="lab")
 
 
 class LabSolution(Base):
     __tablename__ = "lab_solution"
     id = Column(Integer, primary_key=True, index=True)
-    lab_variant_id = Column(Integer, ForeignKey("lab_var.id", ondelete="CASCADE"), nullable=False)
+    lab_variant_id = Column(Integer, ForeignKey(
+        "lab_var.id", ondelete="CASCADE"), nullable=False)
     solution_text = Column(String)
     lab_variant = relationship("LabVariant", back_populates="solutions")
 
 
-LabVariant.solutions = relationship("LabSolution", order_by=LabSolution.id, back_populates="lab_variant")
+LabVariant.solutions = relationship(
+    "LabSolution", order_by=LabSolution.id, back_populates="lab_variant")
 
 
 class LabResult(Base):
     __tablename__ = "lab_result"
     id = Column(Integer, primary_key=True, index=True)
-    student_id = Column(Integer, ForeignKey("student.id", ondelete="CASCADE"), nullable=False)
-    lab_variant_id = Column(Integer, ForeignKey("lab_var.id", ondelete="CASCADE"), nullable=False)
+    student_id = Column(Integer, ForeignKey(
+        "student.id", ondelete="CASCADE"), nullable=False)
+    lab_variant_id = Column(Integer, ForeignKey(
+        "lab_var.id", ondelete="CASCADE"), nullable=False)
     score = Column(Integer)
     submission_date = Column(DateTime)
     student = relationship("Student", back_populates="lab_results")
     lab_variant = relationship("LabVariant", back_populates="lab_results")
 
 
-Student.lab_results = relationship("LabResult", order_by=LabResult.id, back_populates="student")
-LabVariant.lab_results = relationship("LabResult", order_by=LabResult.id, back_populates="lab_variant")
+Student.lab_results = relationship(
+    "LabResult",  cascade="save-update, merge, delete, delete-orphan", order_by=LabResult.id, back_populates="student")
+LabVariant.lab_results = relationship(
+    "LabResult", order_by=LabResult.id, back_populates="lab_variant")

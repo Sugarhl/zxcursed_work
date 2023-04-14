@@ -14,10 +14,6 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def generate_salt() -> str:
-    return bcrypt.gensalt().decode("utf-8")
-
-
 @router.post("/register/{user_type}", response_model=UserOut)
 async def register(user_type: str, user_in: UserIn, db: AsyncSession = Depends(get_db)):
     if user_type not in ["Student", "Tutor"]:
@@ -29,26 +25,18 @@ async def register(user_type: str, user_in: UserIn, db: AsyncSession = Depends(g
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Username already exists")
 
-    salt = generate_salt()
-    hashed_password = bcrypt.hashpw(
-        user_in.password.encode("utf-8"), salt.encode("utf-8"))
-
     if user_type == "Student":
         new_user = Student(first_name=user_in.first_name,
                            last_name=user_in.last_name, email=user_in.email)
-        new_user = await create_student(db, new_user)
+        user_id = await create_student(db=db, student=new_user)
     elif user_type == "Tutor":
         new_user = Tutor(first_name=user_in.first_name,
                          last_name=user_in.last_name, email=user_in.email)
-        new_user = await create_tutor(db, new_user)
+        user_id = await create_tutor(db=db, tutor=new_user)
 
-    login_creds = User(user_id=new_user.id, user_type=user_type, username=user_in.username,
-                       password=hashed_password.decode("utf-8"))
-    db_creds = await create_user(db, login_creds)
+    await create_user(db=db, user_in=user_in, user_type=user_type, user_id=user_id)
 
-    return UserOut(user_id=new_user.id,
-                   user_type=db_creds.user_type,
-                   username=db_creds.username,
-                   first_name=new_user.first_name,
-                   last_name=new_user.last_name,
-                   email=new_user.email)
+    user_out = UserOut(user_id=user_id,
+                       user_type=user_type)
+
+    return user_out
