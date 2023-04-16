@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from server.database import async_engine, Base, async_database
 
-from server.login import router as login_router
-from server.registration import router as registration_router
+from server.api.login import router as login_router
+from server.api.registration import router as registration_router
+from server.api.solutions import router as solutions_router
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ async def shutdown():
 
 app.include_router(login_router, prefix="/auth", tags=["Authentication"])
 app.include_router(registration_router, prefix="/registration", tags=["Registration"])
+app.include_router(solutions_router, prefix="/solutions", tags=["Solutions"])
 
 @app.get("/")
 async def root():

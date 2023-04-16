@@ -21,6 +21,8 @@ psutil = "*"
 greenlet = "*"
 psycopg2-binary = "*"
 pyjwt = "*"
+autopep8 = "*"
+fastapi-cache = "*"
 
 [requires]
 python_version = "3.10"

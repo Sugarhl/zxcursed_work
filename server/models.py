@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, CheckConstraint, DateTime
+from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey, CheckConstraint, DateTime
 from sqlalchemy.orm import relationship
 from server.database import Base
 
@@ -11,6 +11,8 @@ class Lab(Base):
     owner = Column(String(255), nullable=False)
     file_of_lab = Column(String)
 
+    variants = relationship("LabVariant", back_populates="lab")
+
 
 class Tutor(Base):
     __tablename__ = "tutor"
@@ -19,6 +21,8 @@ class Tutor(Base):
     last_name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
 
+    solutions = relationship("LabSolution", back_populates="tutor")
+
 
 class Student(Base):
     __tablename__ = "student"
@@ -26,6 +30,9 @@ class Student(Base):
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
+
+    solutions = relationship("LabSolution", back_populates="student")
+    results = relationship("LabResult", back_populates="student")
 
 
 class User(Base):
@@ -46,11 +53,9 @@ class LabVariant(Base):
         "lab.id", ondelete="CASCADE"), nullable=False)
     variant_name = Column(String(255), nullable=False)
     description = Column(String)
+
     lab = relationship("Lab", back_populates="variants")
-
-
-Lab.variants = relationship(
-    "LabVariant", order_by=LabVariant.id, back_populates="lab")
+    solutions = relationship("LabSolution", back_populates="variant")
 
 
 class LabSolution(Base):
@@ -58,12 +63,34 @@ class LabSolution(Base):
     id = Column(Integer, primary_key=True, index=True)
     lab_variant_id = Column(Integer, ForeignKey(
         "lab_var.id", ondelete="CASCADE"), nullable=False)
-    solution_text = Column(String)
-    lab_variant = relationship("LabVariant", back_populates="solutions")
+    student_id = Column(Integer, ForeignKey(
+        "student.id", ondelete="CASCADE"), nullable=False)
+    tutor_id = Column(Integer, ForeignKey(
+        "tutor.id", ondelete="CASCADE"), nullable=False)
+    solution_filename = Column(String)
+    file_data = Column(LargeBinary)
+    mark = Column(Integer)
+
+    variant = relationship("LabVariant", back_populates="solutions")
+    student = relationship("Student", back_populates="solutions")
+    tutor = relationship("Tutor", back_populates="solutions")
+    comments = relationship("LabSolutionComment", back_populates="solution")
 
 
-LabVariant.solutions = relationship(
-    "LabSolution", order_by=LabSolution.id, back_populates="lab_variant")
+class LabSolutionComment(Base):
+    __tablename__ = "lab_solution_comment"
+    id = Column(Integer, primary_key=True, index=True)
+    solution_id = Column(Integer, ForeignKey(
+        "lab_solution.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey(
+        "login_creds.id", ondelete="CASCADE"), nullable=False)
+    user_type = Column(String(50), nullable=False, index=True)
+    reply_id = Column(Integer, nullable=True)
+    comment_text = Column(String)
+    created_date = Column(DateTime)
+    updated_date = Column(DateTime)
+
+    solution = relationship("LabSolution", back_populates="comments")
 
 
 class LabResult(Base):
@@ -75,11 +102,5 @@ class LabResult(Base):
         "lab_var.id", ondelete="CASCADE"), nullable=False)
     score = Column(Integer)
     submission_date = Column(DateTime)
-    student = relationship("Student", back_populates="lab_results")
-    lab_variant = relationship("LabVariant", back_populates="lab_results")
 
-
-Student.lab_results = relationship(
-    "LabResult",  cascade="save-update, merge, delete, delete-orphan", order_by=LabResult.id, back_populates="student")
-LabVariant.lab_results = relationship(
-    "LabResult", order_by=LabResult.id, back_populates="lab_variant")
+    student = relationship("Student", back_populates="results")

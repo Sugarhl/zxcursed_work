@@ -1,24 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import timedelta
-import jwt
 
-from server.crud import get_user_by_username_with_salt, get_user_by_username, verify_password
+
 import server.schemas as schemas
+from server.models import User
+from server.crud import get_user_by_username, verify_password
 from server.database import get_db
 from server.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from server.token import create_access_token
 
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
-
-
-def create_access_token(user_id: int, user_type: str):
-    expire = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES).total_seconds()
-    to_encode = {"user_id": user_id, "user_type": user_type, "exp": expire}
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
 
 async def authenticate_user(db: AsyncSession, username: str, password: str):
@@ -35,6 +30,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     user = await authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
-            status_code=400, detail="Incorrect username or password")
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect username or password")
     access_token = create_access_token(user.id, user.user_type)
     return {"access_token": access_token, "token_type": "bearer"}

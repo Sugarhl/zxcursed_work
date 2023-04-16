@@ -1,15 +1,31 @@
+import datetime
+from typing import Optional
 import bcrypt
+from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
 import server.models as models
 import server.schemas as schemas
 
 
+# Some utils
 def generate_salt() -> str:
     return bcrypt.gensalt().decode("utf-8")
 
 
-async def create_user(db: AsyncSession, user_in: schemas.UserIn, user_type: str, user_id: int) -> int:
+async def add_to_db(obj, db: AsyncSession, ) -> int:
+    db.add(obj)
+    await db.commit()
+    await db.refresh(obj)
+    return obj.id
+
+
+# Create statements
+async def create_user(db: AsyncSession,
+                      user_in: schemas.UserIn,
+                      user_type: str,
+                      user_id: int) -> int:
     salt = generate_salt()
     hashed_password = bcrypt.hashpw(
         user_in.password.encode("utf-8"), salt.encode("utf-8"))
@@ -19,10 +35,8 @@ async def create_user(db: AsyncSession, user_in: schemas.UserIn, user_type: str,
                        username=user_in.username,
                        password=hashed_password.decode("utf-8"),
                        salt=salt)
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-    return user.id
+
+    return await add_to_db(user, db=db)
 
 
 async def create_student(db: AsyncSession, student: schemas.UserIn) -> int:
@@ -31,10 +45,7 @@ async def create_student(db: AsyncSession, student: schemas.UserIn) -> int:
         last_name=student.last_name,
         email=student.email,
     )
-    db.add(db_student)
-    await db.commit()
-    await db.refresh(db_student)
-    return db_student.id
+    return await add_to_db(db_student, db=db)
 
 
 async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> int:
@@ -43,25 +54,54 @@ async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> int:
         last_name=tutor.last_name,
         email=tutor.email,
     )
-    db.add(db_tutor)
-    await db.commit()
-    await db.refresh(db_tutor)
-    return db_tutor.id
+    return await add_to_db(db_tutor, db=db)
 
 
+async def create_solution(db: AsyncSession,
+                          student_id: int,
+                          lab_variant_id: int,
+                          solution_file: Optional[UploadFile]) -> int:
+    solution_filename = None
+    file_data = None
+    if solution_file:
+        solution_filename = solution_file.filename
+        file_data = await solution_file.read()
+
+    solution = models.LabSolution(
+        student_id=student_id,
+        lab_variant_id=lab_variant_id,
+        solution_filename=solution_filename,
+        file_data=file_data)
+    return await add_to_db(solution, db=db)
+
+
+async def create_comment(db: AsyncSession,
+                         comment: schemas.LabSolutionCommentCreate,
+                         user_id: int,
+                         user_type: int) -> int:
+    db_comment = models.LabSolutionComment(
+        solution_id=comment.solution_id,
+        user_id=user_id,
+        user_type=user_type,
+        reply_id=comment.reply_id,
+        comment_text=comment.text,
+        created_date=datetime.datetime.utcnow(),
+        updated_date=datetime.datetime.utcnow())
+    print('ready to add')
+    return await add_to_db(db_comment, db=db)
+
+
+# Get statements
 async def get_user_by_username(db: AsyncSession, username: str):
     stmt = select(models.User).where(models.User.username == username)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
-# Add more CRUD operations for other models (Lab, LabVariant, LabSolution, LabResult) as needed.
 
-
-async def get_user_by_username_with_salt(db: AsyncSession, username: str):
-    stmt = select(models.User.username, models.User.password, models.User.salt,
-                  models.User.id, models.User.user_type).where(models.User.username == username)
+async def get_user_by_id(db: AsyncSession, user_id: int):
+    stmt = select(models.User).where(models.User.id == user_id)
     result = await db.execute(stmt)
-    return result.fetchone()
+    return result.scalar_one_or_none()
 
 
 async def verify_password(password: str, salt: str, hashed_password: str) -> bool:
