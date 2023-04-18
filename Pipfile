@@ -23,6 +23,10 @@ psycopg2-binary = "*"
 pyjwt = "*"
 autopep8 = "*"
 fastapi-cache = "*"
+pytest = "*"
+testsuite = "*"
+pytest-asyncio = "*"
+aiosqlite = "*"
 
 [requires]
 python_version = "3.10"

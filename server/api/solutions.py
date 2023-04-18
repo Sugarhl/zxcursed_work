@@ -39,11 +39,11 @@ async def create_lab_solution_comment(comment: schemas.LabSolutionCommentCreate,
     try:
         user_id, user_type = decode_access_token(auth.credentials)
 
-        new_comment = await create_comment(db=db,
-                                           comment=comment,
-                                           user_id=user_id,
-                                           user_type=user_type)
-        return {"comment_id": new_comment.id}
+        comment_id = await create_comment(db=db,
+                                          comment=comment,
+                                          user_id=user_id,
+                                          user_type=user_type)
+        return {"comment_id": comment_id}
 
     except ValidationError as e:
         raise HTTPException(

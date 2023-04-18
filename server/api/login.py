@@ -20,7 +20,11 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
     user = await get_user_by_username(db, username)
     if not user:
         return False
-    if not verify_password(password, user.salt, user.password):
+
+    print(user.salt, user.password, password)
+    authorized = await verify_password(password, user.salt, user.password)
+    print(authorized, "ALOOOOOOOO")
+    if not authorized:
         return False
     return user
 

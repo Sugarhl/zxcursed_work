@@ -2,6 +2,8 @@ from typing import Optional
 from fastapi import UploadFile
 from pydantic import BaseModel
 
+from server.utils import UserType
+
 
 class UserIn(BaseModel):
     username: str
@@ -13,7 +15,7 @@ class UserIn(BaseModel):
 
 class UserOut(BaseModel):
     user_id: int
-    user_type: str
+    user_type: UserType
 
 
 class Config:
@@ -28,7 +30,7 @@ class Token(BaseModel):
 class SolutionUpload(BaseModel):
     lab_variant_id: int
     solution_text: Optional[str]
-    solution_file: Optional[UploadFile]
+    solution_file: UploadFile
 
 
 class LabSolutionCommentCreate(BaseModel):

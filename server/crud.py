@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 from typing import Optional
 import bcrypt
 from fastapi import UploadFile
@@ -14,7 +15,13 @@ def generate_salt() -> str:
     return bcrypt.gensalt().decode("utf-8")
 
 
-async def add_to_db(obj, db: AsyncSession, ) -> int:
+def generate_salted_password(salt, password):
+    salted_password = salt + password
+    hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()
+    return hashed_password
+
+
+async def add_to_db(obj, db: AsyncSession) -> int:
     db.add(obj)
     await db.commit()
     await db.refresh(obj)
@@ -27,13 +34,13 @@ async def create_user(db: AsyncSession,
                       user_type: str,
                       user_id: int) -> int:
     salt = generate_salt()
-    hashed_password = bcrypt.hashpw(
-        user_in.password.encode("utf-8"), salt.encode("utf-8"))
+    hashed_password = generate_salted_password(
+        salt=salt, password=user_in.password)
 
     user = models.User(user_id=user_id,
                        user_type=user_type,
                        username=user_in.username,
-                       password=hashed_password.decode("utf-8"),
+                       password=hashed_password,
                        salt=salt)
 
     return await add_to_db(user, db=db)
@@ -60,12 +67,9 @@ async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> int:
 async def create_solution(db: AsyncSession,
                           student_id: int,
                           lab_variant_id: int,
-                          solution_file: Optional[UploadFile]) -> int:
-    solution_filename = None
-    file_data = None
-    if solution_file:
-        solution_filename = solution_file.filename
-        file_data = await solution_file.read()
+                          solution_file: UploadFile) -> int:
+    solution_filename = solution_file.filename
+    file_data = await solution_file.read()
 
     solution = models.LabSolution(
         student_id=student_id,
@@ -105,4 +109,5 @@ async def get_user_by_id(db: AsyncSession, user_id: int):
 
 
 async def verify_password(password: str, salt: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8")) and bcrypt.checkpw(salt.encode("utf-8"), hashed_password.encode("utf-8"))
+    input_hashed_password = generate_salted_password(salt, password)
+    return input_hashed_password == hashed_password

@@ -1,10 +1,11 @@
 import datetime
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Tuple, Union
 
 import jwt
 from fastapi import HTTPException, status
 from jwt import ExpiredSignatureError, InvalidTokenError
 from server.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
+from server.utils import UserType
 
 
 def create_access_token(user_id: int, user_type: str) -> str:
@@ -16,11 +17,12 @@ def create_access_token(user_id: int, user_type: str) -> str:
     return encoded_jwt
 
 
-def decode_access_token(token: str) -> Dict[str, Union[int, str]]:
+def decode_access_token(token: str) -> Tuple[int, UserType]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("user_id")
-        user_type = payload.get("user_type")
+        user_type_str = payload.get("user_type")
+        user_type = UserType(user_type_str)
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
@@ -39,3 +41,6 @@ def decode_access_token(token: str) -> Dict[str, Union[int, str]]:
     except InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user type in token")
