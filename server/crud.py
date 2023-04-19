@@ -3,8 +3,15 @@ import datetime
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from server.models.lab_solution_comment import LabSolutionComment
 
-import server.models as models
+
+from server.models.user import User
+from server.models.student import Student
+from server.models.lab_solution import LabSolution
+from server.models.tutor import Tutor
+
+
 import server.schemas as schemas
 from server.utils import generate_salt, generate_salted_password
 
@@ -25,17 +32,17 @@ async def create_user(db: AsyncSession,
     hashed_password = generate_salted_password(
         salt=salt, password=user_in.password)
 
-    user = models.User(user_id=user_id,
-                       user_type=user_type,
-                       username=user_in.username,
-                       password=hashed_password,
-                       salt=salt)
+    user = User(user_id=user_id,
+                user_type=user_type,
+                username=user_in.username,
+                password=hashed_password,
+                salt=salt)
 
     return await add_to_db(user, db=db)
 
 
 async def create_student(db: AsyncSession, student: schemas.UserIn) -> int:
-    db_student = models.Student(
+    db_student = Student(
         first_name=student.first_name,
         last_name=student.last_name,
         email=student.email,
@@ -44,7 +51,7 @@ async def create_student(db: AsyncSession, student: schemas.UserIn) -> int:
 
 
 async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> int:
-    db_tutor = models.Tutor(
+    db_tutor = Tutor(
         first_name=tutor.first_name,
         last_name=tutor.last_name,
         email=tutor.email,
@@ -59,7 +66,7 @@ async def create_solution(db: AsyncSession,
     solution_filename = solution_file.filename
     file_data = await solution_file.read()
 
-    solution = models.LabSolution(
+    solution = LabSolution(
         student_id=student_id,
         lab_variant_id=lab_variant_id,
         solution_filename=solution_filename,
@@ -71,7 +78,7 @@ async def create_comment(db: AsyncSession,
                          comment: schemas.LabSolutionCommentCreate,
                          user_id: int,
                          user_type: int) -> int:
-    db_comment = models.LabSolutionComment(
+    db_comment = LabSolutionComment(
         solution_id=comment.solution_id,
         user_id=user_id,
         user_type=user_type,
@@ -85,13 +92,13 @@ async def create_comment(db: AsyncSession,
 
 # Get statements
 async def get_user_by_username(db: AsyncSession, username: str):
-    stmt = select(models.User).where(models.User.username == username)
+    stmt = select(User).where(User.username == username)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
 async def get_user_by_id(db: AsyncSession, user_id: int):
-    stmt = select(models.User).where(models.User.id == user_id)
+    stmt = select(User).where(User.id == user_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 

@@ -1,7 +1,7 @@
 import random
 import string
 from server.schemas import UserIn
-from server.models import Student, Tutor
+from server.modelss import Student, Tutor
 from server.crud import create_student, create_tutor, create_user
 from server.utils import UserType
 from sqlalchemy.ext.asyncio import AsyncSession

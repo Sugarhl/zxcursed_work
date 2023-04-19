@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordBearer
+from server.models.student import Student
+from server.models.tutor import Tutor
 
 from server.schemas import UserIn, UserOut
-from server.models import User, Student, Tutor
+
 from server.database import get_db
 from server.crud import create_user, get_user_by_username, create_student, create_tutor
 from server.utils import UserType

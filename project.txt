@@ -1,137 +1,268 @@
-Contents of server/api/registration.py:
-  from fastapi import APIRouter, Depends, HTTPException, status
+Contents of server/models/lab_solution_comment.py:
+  from sqlalchemy import Column, Integer, String, DateTime
+  from sqlalchemy.orm import relationship
   from sqlalchemy.ext.asyncio import AsyncSession
-  from fastapi.security import OAuth2PasswordBearer
+  from server.config import SCHEMA
   
-  from server.schemas import UserIn, UserOut
-  from server.models import User, Student, Tutor
-  from server.database import get_db
-  from server.crud import create_user, get_user_by_username, create_student, create_tutor
-  from server.utils import UserType
-  
-  router = APIRouter()
-  
-  oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+  from server.models.base import BaseRW
   
   
-  @router.post("/register/{user_type}", response_model=UserOut)
-  async def register(user_type: UserType, user_in: UserIn, db: AsyncSession = Depends(get_db)):
-      existing_user = await get_user_by_username(db, user_in.username)
-      if existing_user:
-          raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                              detail="Username already exists")
+  class LabSolutionComment(BaseRW):
+      __tablename__ = "lab_solution_comment"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
   
-      if user_type == UserType.STUDENT:
-          new_user = Student(first_name=user_in.first_name,
-                             last_name=user_in.last_name, email=user_in.email)
-          user_id = await create_student(db=db, student=new_user)
-      elif user_type == UserType.TUTOR:
-          new_user = Tutor(first_name=user_in.first_name,
-                           last_name=user_in.last_name, email=user_in.email)
-          user_id = await create_tutor(db=db, tutor=new_user)
+      id = Column(Integer, primary_key=True, index=True)
+      solution_id = Column(Integer, nullable=False)
+      user_id = Column(Integer, nullable=False)
+      user_type = Column(String(50), nullable=False, index=True)
+      reply_id = Column(Integer, nullable=True)
+      comment_text = Column(String)
+      created_date = Column(DateTime)
+      updated_date = Column(DateTime)
   
-      await create_user(db=db, user_in=user_in, user_type=user_type.value, user_id=user_id)
-  
-      user_out = UserOut(user_id=user_id,
-                         user_type=user_type)
-  
-      return user_out
+      solution = relationship("LabSolution", back_populates="comments")
 
-Contents of tests/testsuite/conftest.py:
-  import asyncio
+Contents of server/models/user.py:
+  from sqlalchemy import CheckConstraint, Column, Integer, String, select
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy.orm import relationship
+  from server.config import SCHEMA
   
-  import random
-  import string
-  from fastapi.testclient import TestClient
-  import pytest
-  
-  from server.main import app
-  
-  from server.schemas import UserIn
-  from server.models import Student
-  from server.crud import create_student, create_user
-  from server.utils import UserType
-  from server.database import async_engine, async_database, get_db
-  from server.database import Base, session_factory
+  from server.models.base import BaseRW
   
   
-  @pytest.fixture(scope="module")
-  def event_loop():
-      loop = asyncio.new_event_loop()
-      yield loop
-      loop.close()
+  class User(BaseRW):
+      __tablename__ = "login_creds"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
   
-  
-  @pytest.fixture(scope="module")
-  def client():
-      client = TestClient(app)
-      return client
-  
-  
-  # @pytest.fixture(scope="module")
-  # async def db():
-  #     async with async_database:
-  #         # Create the database tables
-  #         Base.metadata.create_all(bind=async_engine)
-  #         yield async_database
-  #         # Drop the database tables after the tests have finished running
-  #         Base.metadata.drop_all(bind=async_engine)
-  
-  
-  # @pytest.fixture(scope="function")
-  # async def session(db):
-  #     async with session_factory() as session:
-  #         yield session
-  
-  
-  def generate_random_string(length=6):
-      return ''.join(random.choices(string.ascii_letters
-                                    + string.digits, k=length))
-  
-  
-  @pytest.fixture(scope="function")
-  def test_user():
-      unique_id = f"{generate_random_string()}"
-      test_user = UserIn(username=f"teststudent_{unique_id}",
-                         password="testpassword",
-                         first_name="Test",
-                         last_name="Student",
-                         email=f"test_{unique_id}@example.com")
-      return test_user
-  
-  
-  @pytest.fixture(scope="function")
-  async def test_student(test_user):
-      new_student = Student(first_name=test_user.first_name,
-                            last_name=test_user.last_name, email=test_user.email)
-  
-      db = get_db()
-      student_id = await create_student(db=db, student=new_student)
-      await create_user(db=db, user_in=test_user,
-                        user_type=UserType.STUDENT.value, user_id=student_id)
-      return student_id, test_user
+      id = Column(Integer, primary_key=True, index=True)
+      user_id = Column(Integer, nullable=False)
+      user_type = Column(String(50), nullable=False, index=True)
+      username = Column(String(255), nullable=False, unique=True)
+      password = Column(String(255), nullable=False)
+      salt = Column(String(255), nullable=False)
+      CheckConstraint("user_type IN ('Student', 'Tutor')")
 
-Contents of server/database.py:
-  from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-  from sqlalchemy.ext.declarative import declarative_base
-  from sqlalchemy.orm import sessionmaker
-  from sqlalchemy import MetaData
+Contents of server/models/base.py:
+  from typing import Any
   
-  import databases
-  
-  from server.config import DATABASE_URL
-  
-  SCHEMA = "lab_management"
-  Base = declarative_base(metadata=MetaData(schema=SCHEMA))
-  
-  async_engine = create_async_engine(DATABASE_URL, future=True, echo=True)
-  async_database = databases.Database(DATABASE_URL)
-  
-  session_factory = sessionmaker(
-      autocommit=False, autoflush=False, bind=async_engine, class_=AsyncSession)
+  from asyncpg import UniqueViolationError
+  from fastapi import HTTPException, status
+  from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy.ext.declarative import as_declarative, declared_attr
   
   
-  async def get_db():
-      async with session_factory() as session:
-          yield session
+  @as_declarative()
+  class BaseReadOnly:
+      id: Any
+      __name__: str
+      # Generate __tablename__ automatically
+  
+      @declared_attr
+      def __tablename__(self) -> str:
+          return self.__name__.lower()
+  
+  
+  @as_declarative()
+  class BaseRW:
+      id: Any
+      __name__: str
+      # Generate __tablename__ automatically
+  
+      @declared_attr
+      def __tablename__(self) -> str:
+          return self.__name__.lower()
+  
+      async def save(self, db_session: AsyncSession):
+          """
+  
+          :param db_session:
+          :return:
+          """
+          try:
+              db_session.add(self)
+              return await db_session.commit()
+          except SQLAlchemyError as ex:
+              raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=repr(ex)) from ex
+  
+      async def delete(self, db_session: AsyncSession):
+          """
+  
+          :param db_session:
+          :return:
+          """
+          try:
+              await db_session.delete(self)
+              await db_session.commit()
+              return True
+          except SQLAlchemyError as ex:
+              raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=repr(ex)) from ex
+  
+      async def update(self, db_session: AsyncSession, **kwargs):
+          """
+  
+          :param db_session:
+          :param kwargs:
+          :return:
+          """
+          for k, v in kwargs.items():
+              setattr(self, k, v)
+          await self.save(db_session)
+  
+      async def save_or_update(self, db: AsyncSession):
+          try:
+              db.add(self)
+              return await db.commit()
+          except IntegrityError as exception:
+              if isinstance(exception.orig, UniqueViolationError):
+                  return await db.merge(self)
+              else:
+                  raise HTTPException(
+                      status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                      detail=repr(exception),
+                  ) from exception
+          finally:
+              await db.close()
+Contents of server/models/tutor.py:
+  from sqlalchemy import Column, Integer, String, select
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy.orm import relationship
+  from server.config import SCHEMA
+  
+  from server.models.base import BaseRW
+  
+  
+  class Tutor(BaseRW):
+      __tablename__ = "tutor"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
+  
+      id = Column(Integer, primary_key=True, index=True)
+      first_name = Column(String(255), nullable=False)
+      last_name = Column(String(255), nullable=False)
+      email = Column(String(255), nullable=False, unique=True)
+  
+      solutions = relationship("LabSolution", back_populates="tutor")
+
+Contents of server/models/lab.py:
+  from sqlalchemy import Column, Integer, String, select
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy.orm import relationship
+  from server.config import SCHEMA
+  
+  
+  from server.models.base import BaseRW
+  
+  
+  class Lab(BaseRW):
+      __tablename__ = "lab"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
+  
+      id = Column(Integer, primary_key=True, index=True)
+      lab_name = Column(String(255), nullable=False)
+      description = Column(String)
+      owner = Column(String(255), nullable=False)
+      file_of_lab = Column(String)
+  
+      variants = relationship("LabVariant", back_populates="lab")
+
+Contents of server/models/student.py:
+  from sqlalchemy import Column, Integer, String, select
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy.orm import relationship
+  from server.config import SCHEMA
+  
+  
+  from server.models.base import BaseRW
+  
+  
+  class Student(BaseRW):
+      __tablename__ = "student"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
+  
+      id = Column(Integer, primary_key=True, index=True)
+      first_name = Column(String(255), nullable=False)
+      last_name = Column(String(255), nullable=False)
+      email = Column(String(255), nullable=False, unique=True)
+  
+      solutions = relationship("LabSolution", back_populates="student")
+      results = relationship("LabResult", back_populates="student")
+
+Contents of server/models/lab_result.py:
+  from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey, CheckConstraint, DateTime
+  from sqlalchemy.orm import relationship
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from server.config import SCHEMA
+  
+  from server.models.base import BaseRW
+  
+  
+  class LabResult(BaseRW):
+      __tablename__ = "lab_result"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
+  
+      id = Column(Integer, primary_key=True, index=True)
+      student_id = Column(Integer, ForeignKey(
+          f"{SCHEMA}.student.id", ondelete="CASCADE"), nullable=False)
+      lab_variant_id = Column(Integer, ForeignKey(
+          f"{SCHEMA}.lab_var.id", ondelete="CASCADE"), nullable=False)
+      score = Column(Integer)
+      submission_date = Column(DateTime)
+  
+      student = relationship("Student", back_populates="results")
+
+Contents of server/models/lab_solution.py:
+  from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey, CheckConstraint, DateTime
+  from sqlalchemy.orm import relationship
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from server.config import SCHEMA
+  
+  from server.models.base import BaseRW
+  
+  
+  class LabSolution(BaseRW):
+      __tablename__ = "lab_solution"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
+  
+      id = Column(Integer, primary_key=True, index=True)
+      lab_variant_id = Column(Integer,
+                              ForeignKey(f"{SCHEMA}.lab_var.id", ondelete="CASCADE"),
+                              nullable=False)
+      student_id = Column(Integer,
+                          ForeignKey(f"{SCHEMA}.student.id", ondelete="CASCADE"),
+                          nullable=False)
+      tutor_id = Column(Integer,
+                        ForeignKey(f"{SCHEMA}.tutor.id", ondelete="CASCADE"),
+                        nullable=False)
+      solution_filename = Column(String)
+      file_data = Column(LargeBinary)
+      mark = Column(Integer)
+  
+      variant = relationship("LabVariant", back_populates="solutions")
+      student = relationship("Student", back_populates="solutions")
+      tutor = relationship("Tutor", back_populates="solutions")
+      comments = relationship("LabSolutionComment", back_populates="solution")
+
+Contents of server/models/lab_variant.py:
+  from sqlalchemy import Column, ForeignKey, Integer, String, select
+  # from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy.orm import relationship
+  from server.config import SCHEMA
+  
+  from server.models.base import BaseRW
+  
+  
+  class LabVariant(BaseRW):
+      __tablename__ = "lab_var"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
+  
+      id = Column(Integer, primary_key=True, index=True)
+      lab_id = Column(Integer,
+                      ForeignKey(f"{SCHEMA}.lab.id", ondelete="CASCADE"),
+                      nullable=False)
+      variant_name = Column(String(255), nullable=False)
+      description = Column(String)
+  
+      lab = relationship("Lab", back_populates="variants")
+      solutions = relationship("LabSolution", back_populates="variant")
 

@@ -1,3 +1,5 @@
+from fastapi_security import User
+from server.models import Student
 from server.utils import generate_salt, generate_salted_password
 import asyncio
 import random
@@ -7,7 +9,6 @@ import pytest
 
 from server.main import app
 from server.schemas import UserIn
-from server.models import Student, User
 from server.crud import create_student, create_user
 from server.utils import UserType
 import server.config as con
@@ -21,6 +22,16 @@ TEST_DATABASE_URL = "postgresql://user:vikisah01@rc1b-8aubff9hb0epodpz.mdb.yande
 test_engine = create_engine(TEST_DATABASE_URL)
 test_session_factory = sessionmaker(
     autocommit=False, autoflush=False, bind=test_engine, class_=Session)
+
+
+
+@pytest.fixture(
+    params=[
+        pytest.param(("asyncio", {"use_uvloop": True}), id="asyncio+uvloop"),
+    ]
+)
+def anyio_backend(request):
+    return request.param
 
 
 @pytest.fixture(scope="module")

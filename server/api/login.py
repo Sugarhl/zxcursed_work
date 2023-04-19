@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 import server.schemas as schemas
-from server.models import User
 from server.crud import get_user_by_username, verify_password
 from server.database import get_db
 from server.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES

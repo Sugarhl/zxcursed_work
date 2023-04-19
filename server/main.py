@@ -1,17 +1,16 @@
 from fastapi import FastAPI
-from server.database import async_engine, Base, async_database
+from server.database import async_database, create_tables
 from server.api.login import router as login_router
 from server.api.registration import router as registration_router
 from server.api.solutions import router as solutions_router
+from server.models.base import BaseRW
 
 app = FastAPI()
 
 
 @app.on_event("startup")
 async def startup():
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+    await create_tables()
     await async_database.connect()
 
 
