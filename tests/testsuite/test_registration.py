@@ -1,18 +1,14 @@
 import json
 import pytest
-from server.models import Student
 
-from server.schemas import LabSolutionCommentCreate, UserIn
-from server.utils import UserType
-from server.database import session_factory
 from tests.testsuite.utils import make_user_in
 
 
 @pytest.mark.asyncio
-async def test_register(test_app):
+async def test_register(client):
     test_user = make_user_in()
 
-    response = test_app.post(
+    response = client.post(
         "/registration/register/student", json=test_user.dict())
 
     assert response.status_code == 200

@@ -1,24 +1,12 @@
 import datetime
-import hashlib
-from typing import Optional
-import bcrypt
+
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 import server.models as models
 import server.schemas as schemas
-
-
-# Some utils
-def generate_salt() -> str:
-    return bcrypt.gensalt().decode("utf-8")
-
-
-def generate_salted_password(salt, password):
-    salted_password = salt + password
-    hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()
-    return hashed_password
+from server.utils import generate_salt, generate_salted_password
 
 
 async def add_to_db(obj, db: AsyncSession) -> int:
