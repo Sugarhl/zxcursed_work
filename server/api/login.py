@@ -13,7 +13,7 @@ from server.schemas import Token
 
 router = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 async def authenticate_user(db: AsyncSession, username: str, password: str):

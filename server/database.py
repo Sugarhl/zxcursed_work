@@ -2,6 +2,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import MetaData
+
+from sqlalchemy.pool import NullPool
 import databases
 from server.models.base import BaseRW
 
@@ -18,12 +20,12 @@ from server.config import DATABASE_URL
 
 SCHEMA = "lab_management"
 Base = declarative_base(metadata=MetaData(schema=SCHEMA))
-
-async_engine = create_async_engine(DATABASE_URL, echo=True)
+print(DATABASE_URL)
+async_engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 async_database = databases.Database(DATABASE_URL)
 
 session_factory = sessionmaker(
-    autocommit=False, autoflush=False, bind=async_engine, class_=AsyncSession)
+    autocommit=False, autoflush=False, expire_on_commit=False, bind=async_engine, class_=AsyncSession)
 
 
 async def get_db():
@@ -47,8 +49,7 @@ async def create_tables():
     async with async_engine.begin() as conn:
 
         # await conn.run_sync(BaseRW.metadata.drop_all)
-        
-        
+
         # Create tables without foreign key dependencies
         await conn.run_sync(User.__table__.create, checkfirst=True)
         await conn.run_sync(Student.__table__.create, checkfirst=True)

@@ -14,7 +14,7 @@ from server.validation.registration import check_user_exists, validate_user_data
 
 router = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 @router.post("/register/{user_type}", response_model=Token)

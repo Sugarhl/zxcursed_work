@@ -3,7 +3,6 @@ from server.database import async_database, create_tables
 from server.api.login import router as login_router
 from server.api.registration import router as registration_router
 from server.api.solutions import router as solutions_router
-from server.models.base import BaseRW
 
 app = FastAPI()
 
