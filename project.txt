@@ -1,268 +1,41 @@
-Contents of server/models/lab_solution_comment.py:
-  from sqlalchemy import Column, Integer, String, DateTime
-  from sqlalchemy.orm import relationship
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from server.config import SCHEMA
+Contents of server/schemas.py:
+  from typing import Optional
+  from fastapi import UploadFile
+  from pydantic import BaseModel
   
-  from server.models.base import BaseRW
-  
-  
-  class LabSolutionComment(BaseRW):
-      __tablename__ = "lab_solution_comment"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      solution_id = Column(Integer, nullable=False)
-      user_id = Column(Integer, nullable=False)
-      user_type = Column(String(50), nullable=False, index=True)
-      reply_id = Column(Integer, nullable=True)
-      comment_text = Column(String)
-      created_date = Column(DateTime)
-      updated_date = Column(DateTime)
-  
-      solution = relationship("LabSolution", back_populates="comments")
-
-Contents of server/models/user.py:
-  from sqlalchemy import CheckConstraint, Column, Integer, String, select
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from sqlalchemy.orm import relationship
-  from server.config import SCHEMA
-  
-  from server.models.base import BaseRW
+  from server.utils import UserType
   
   
-  class User(BaseRW):
-      __tablename__ = "login_creds"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      user_id = Column(Integer, nullable=False)
-      user_type = Column(String(50), nullable=False, index=True)
-      username = Column(String(255), nullable=False, unique=True)
-      password = Column(String(255), nullable=False)
-      salt = Column(String(255), nullable=False)
-      CheckConstraint("user_type IN ('Student', 'Tutor')")
-
-Contents of server/models/base.py:
-  from typing import Any
-  
-  from asyncpg import UniqueViolationError
-  from fastapi import HTTPException, status
-  from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from sqlalchemy.ext.declarative import as_declarative, declared_attr
+  class UserIn(BaseModel):
+      username: str
+      password: str
+      first_name: str
+      last_name: str
+      email: str
   
   
-  @as_declarative()
-  class BaseReadOnly:
-      id: Any
-      __name__: str
-      # Generate __tablename__ automatically
-  
-      @declared_attr
-      def __tablename__(self) -> str:
-          return self.__name__.lower()
+  class UserOut(BaseModel):
+      user_id: int
+      user_type: UserType
   
   
-  @as_declarative()
-  class BaseRW:
-      id: Any
-      __name__: str
-      # Generate __tablename__ automatically
-  
-      @declared_attr
-      def __tablename__(self) -> str:
-          return self.__name__.lower()
-  
-      async def save(self, db_session: AsyncSession):
-          """
-  
-          :param db_session:
-          :return:
-          """
-          try:
-              db_session.add(self)
-              return await db_session.commit()
-          except SQLAlchemyError as ex:
-              raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=repr(ex)) from ex
-  
-      async def delete(self, db_session: AsyncSession):
-          """
-  
-          :param db_session:
-          :return:
-          """
-          try:
-              await db_session.delete(self)
-              await db_session.commit()
-              return True
-          except SQLAlchemyError as ex:
-              raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=repr(ex)) from ex
-  
-      async def update(self, db_session: AsyncSession, **kwargs):
-          """
-  
-          :param db_session:
-          :param kwargs:
-          :return:
-          """
-          for k, v in kwargs.items():
-              setattr(self, k, v)
-          await self.save(db_session)
-  
-      async def save_or_update(self, db: AsyncSession):
-          try:
-              db.add(self)
-              return await db.commit()
-          except IntegrityError as exception:
-              if isinstance(exception.orig, UniqueViolationError):
-                  return await db.merge(self)
-              else:
-                  raise HTTPException(
-                      status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                      detail=repr(exception),
-                  ) from exception
-          finally:
-              await db.close()
-Contents of server/models/tutor.py:
-  from sqlalchemy import Column, Integer, String, select
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from sqlalchemy.orm import relationship
-  from server.config import SCHEMA
-  
-  from server.models.base import BaseRW
+  class Config:
+      orm_mode = True
   
   
-  class Tutor(BaseRW):
-      __tablename__ = "tutor"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      first_name = Column(String(255), nullable=False)
-      last_name = Column(String(255), nullable=False)
-      email = Column(String(255), nullable=False, unique=True)
-  
-      solutions = relationship("LabSolution", back_populates="tutor")
-
-Contents of server/models/lab.py:
-  from sqlalchemy import Column, Integer, String, select
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from sqlalchemy.orm import relationship
-  from server.config import SCHEMA
+  class Token(BaseModel):
+      access_token: str
+      token_type: str
   
   
-  from server.models.base import BaseRW
+  class SolutionUpload(BaseModel):
+      lab_variant_id: int
+      solution_text: Optional[str]
+      solution_file: UploadFile
   
   
-  class Lab(BaseRW):
-      __tablename__ = "lab"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      lab_name = Column(String(255), nullable=False)
-      description = Column(String)
-      owner = Column(String(255), nullable=False)
-      file_of_lab = Column(String)
-  
-      variants = relationship("LabVariant", back_populates="lab")
-
-Contents of server/models/student.py:
-  from sqlalchemy import Column, Integer, String, select
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from sqlalchemy.orm import relationship
-  from server.config import SCHEMA
-  
-  
-  from server.models.base import BaseRW
-  
-  
-  class Student(BaseRW):
-      __tablename__ = "student"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      first_name = Column(String(255), nullable=False)
-      last_name = Column(String(255), nullable=False)
-      email = Column(String(255), nullable=False, unique=True)
-  
-      solutions = relationship("LabSolution", back_populates="student")
-      results = relationship("LabResult", back_populates="student")
-
-Contents of server/models/lab_result.py:
-  from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey, CheckConstraint, DateTime
-  from sqlalchemy.orm import relationship
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from server.config import SCHEMA
-  
-  from server.models.base import BaseRW
-  
-  
-  class LabResult(BaseRW):
-      __tablename__ = "lab_result"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      student_id = Column(Integer, ForeignKey(
-          f"{SCHEMA}.student.id", ondelete="CASCADE"), nullable=False)
-      lab_variant_id = Column(Integer, ForeignKey(
-          f"{SCHEMA}.lab_var.id", ondelete="CASCADE"), nullable=False)
-      score = Column(Integer)
-      submission_date = Column(DateTime)
-  
-      student = relationship("Student", back_populates="results")
-
-Contents of server/models/lab_solution.py:
-  from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey, CheckConstraint, DateTime
-  from sqlalchemy.orm import relationship
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from server.config import SCHEMA
-  
-  from server.models.base import BaseRW
-  
-  
-  class LabSolution(BaseRW):
-      __tablename__ = "lab_solution"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      lab_variant_id = Column(Integer,
-                              ForeignKey(f"{SCHEMA}.lab_var.id", ondelete="CASCADE"),
-                              nullable=False)
-      student_id = Column(Integer,
-                          ForeignKey(f"{SCHEMA}.student.id", ondelete="CASCADE"),
-                          nullable=False)
-      tutor_id = Column(Integer,
-                        ForeignKey(f"{SCHEMA}.tutor.id", ondelete="CASCADE"),
-                        nullable=False)
-      solution_filename = Column(String)
-      file_data = Column(LargeBinary)
-      mark = Column(Integer)
-  
-      variant = relationship("LabVariant", back_populates="solutions")
-      student = relationship("Student", back_populates="solutions")
-      tutor = relationship("Tutor", back_populates="solutions")
-      comments = relationship("LabSolutionComment", back_populates="solution")
-
-Contents of server/models/lab_variant.py:
-  from sqlalchemy import Column, ForeignKey, Integer, String, select
-  # from sqlalchemy.ext.asyncio import AsyncSession
-  from sqlalchemy.orm import relationship
-  from server.config import SCHEMA
-  
-  from server.models.base import BaseRW
-  
-  
-  class LabVariant(BaseRW):
-      __tablename__ = "lab_var"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      lab_id = Column(Integer,
-                      ForeignKey(f"{SCHEMA}.lab.id", ondelete="CASCADE"),
-                      nullable=False)
-      variant_name = Column(String(255), nullable=False)
-      description = Column(String)
-  
-      lab = relationship("Lab", back_populates="variants")
-      solutions = relationship("LabSolution", back_populates="variant")
+  class LabSolutionCommentCreate(BaseModel):
+      solution_id: int
+      reply_id: Optional[int] = None
+      text: str
 
