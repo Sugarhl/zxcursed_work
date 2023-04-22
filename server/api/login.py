@@ -9,6 +9,7 @@ from server.crud import get_user_by_username, verify_password
 from server.database import get_db
 from server.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from server.token import create_access_token
+from server.schemas import Token
 
 router = APIRouter()
 
@@ -20,9 +21,7 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
     if not user:
         return False
 
-    print(user.salt, user.password, password)
     authorized = await verify_password(password, user.salt, user.password)
-    print(authorized, "ALOOOOOOOO")
     if not authorized:
         return False
     return user
@@ -34,5 +33,4 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect username or password")
-    access_token = create_access_token(user.id, user.user_type)
-    return {"access_token": access_token, "token_type": "bearer"}
+    return create_access_token(user.id, user.user_type)

@@ -5,16 +5,17 @@ import jwt
 from fastapi import HTTPException, status
 from jwt import ExpiredSignatureError, InvalidTokenError
 from server.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
+from server.schemas import Token
 from server.utils import UserType
 
 
-def create_access_token(user_id: int, user_type: str) -> str:
+def create_access_token(user_id: int, user_type: str) -> Token:
     expire = datetime.datetime.utcnow(
     ) + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {"user_id": user_id, "user_type": user_type, "exp": expire}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    print(encoded_jwt)
-    return encoded_jwt
+
+    return Token(access_token=encoded_jwt, token_type="bearer")
 
 
 def decode_access_token(token: str) -> Tuple[int, UserType]:

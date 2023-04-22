@@ -45,8 +45,11 @@ tables = [
 
 async def create_tables():
     async with async_engine.begin() as conn:
+
+        # await conn.run_sync(BaseRW.metadata.drop_all)
+        
+        
         # Create tables without foreign key dependencies
-        await conn.run_sync(BaseRW.metadata.drop_all)
         await conn.run_sync(User.__table__.create, checkfirst=True)
         await conn.run_sync(Student.__table__.create, checkfirst=True)
         await conn.run_sync(Tutor.__table__.create, checkfirst=True)
