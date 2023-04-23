@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 import server.schemas as schemas
-from server.crud import get_user_by_username
+from server.CRUD.user import get_user_by_username
 from server.database import get_db
 from server.token import create_access_token
 from server.utils import verify_password

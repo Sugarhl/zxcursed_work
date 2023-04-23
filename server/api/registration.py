@@ -7,7 +7,11 @@ from server.models.tutor import Tutor
 from server.schemas import UserIn, Token
 
 from server.database import get_db
-from server.crud import create_user,  create_student, create_tutor
+
+from server.CRUD.user import create_user
+from server.CRUD.student import create_student
+from server.CRUD.tutor import create_tutor
+
 from server.token import create_access_token
 from server.utils import UserType
 from server.validation.registration import check_user_exists, validate_user_data

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.schemas import UserIn
 from server.utils import UserType
-from server.crud import get_user_by_email, get_user_by_username
+from server.CRUD.user import get_user_by_email, get_user_by_username
 
 
 async def check_user_exists(db: AsyncSession, user_type: UserType, user_in: UserIn):

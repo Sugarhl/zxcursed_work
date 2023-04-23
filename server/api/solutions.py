@@ -4,7 +4,8 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import server.schemas as schemas
-from server.crud import create_comment, create_solution
+from server.CRUD.comment import create_comment
+from server.CRUD.solution import create_solution
 from server.database import get_db
 from server.token import decode_access_token
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
