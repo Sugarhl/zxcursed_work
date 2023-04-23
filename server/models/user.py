@@ -4,11 +4,11 @@ from sqlalchemy.orm import relationship
 from server.config import SCHEMA
 from sqlalchemy import Enum
 
-from server.models.base import BaseRW
+from server.models.base import Base
 from server.utils import UserType
 
 
-class User(BaseRW):
+class User(Base):
     __tablename__ = "login_creds"
     __table_args__ = ({"schema": f"{SCHEMA}"},)
 

@@ -4,10 +4,10 @@ from sqlalchemy.orm import relationship
 from server.config import SCHEMA
 
 
-from server.models.base import BaseRW
+from server.models.base import Base
 
 
-class Student(BaseRW):
+class Student(Base):
     __tablename__ = "student"
     __table_args__ = ({"schema": f"{SCHEMA}"},)
 

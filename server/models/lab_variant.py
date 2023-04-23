@@ -3,10 +3,10 @@ from sqlalchemy import Column, ForeignKey, Integer, String, select
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
 
-from server.models.base import BaseRW
+from server.models.base import Base
 
 
-class LabVariant(BaseRW):
+class LabVariant(Base):
     __tablename__ = "lab_var"
     __table_args__ = ({"schema": f"{SCHEMA}"},)
 

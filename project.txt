@@ -5,10 +5,10 @@ Contents of server/models/lab.py:
   from server.config import SCHEMA
   
   
-  from server.models.base import BaseRW
+  from server.models.base import Base
   
   
-  class Lab(BaseRW):
+  class Lab(Base):
       __tablename__ = "lab"
       __table_args__ = ({"schema": f"{SCHEMA}"},)
   
@@ -26,10 +26,10 @@ Contents of server/models/lab_variant.py:
   from sqlalchemy.orm import relationship
   from server.config import SCHEMA
   
-  from server.models.base import BaseRW
+  from server.models.base import Base
   
   
-  class LabVariant(BaseRW):
+  class LabVariant(Base):
       __tablename__ = "lab_var"
       __table_args__ = ({"schema": f"{SCHEMA}"},)
   
@@ -49,10 +49,10 @@ Contents of server/models/lab_solution.py:
   from sqlalchemy.ext.asyncio import AsyncSession
   from server.config import SCHEMA
   
-  from server.models.base import BaseRW
+  from server.models.base import Base
   
   
-  class LabSolution(BaseRW):
+  class LabSolution(Base):
       __tablename__ = "lab_solution"
       __table_args__ = ({"schema": f"{SCHEMA}"},)
   

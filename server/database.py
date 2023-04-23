@@ -5,7 +5,7 @@ from sqlalchemy import MetaData
 
 from sqlalchemy.pool import NullPool
 import databases
-from server.models.base import BaseRW
+from server.models.base import Base
 
 from server.models.lab_variant import LabVariant
 from server.models.lab import Lab
@@ -48,7 +48,7 @@ tables = [
 async def create_tables():
     async with async_engine.begin() as conn:
 
-        # await conn.run_sync(BaseRW.metadata.drop_all)
+        # await conn.run_sync(Base.metadata.drop_all)
 
         # Create tables without foreign key dependencies
         await conn.run_sync(User.__table__.create, checkfirst=True)

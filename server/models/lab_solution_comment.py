@@ -3,10 +3,10 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.config import SCHEMA
 
-from server.models.base import BaseRW
+from server.models.base import Base
 
 
-class LabSolutionComment(BaseRW):
+class LabSolutionComment(Base):
     __tablename__ = "lab_solution_comment"
     __table_args__ = ({"schema": f"{SCHEMA}"},)
 

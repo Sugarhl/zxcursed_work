@@ -7,7 +7,7 @@ import pytest_asyncio
 from httpx import AsyncClient
 from server.main import app
 
-from server.models.base import BaseRW
+from server.models.base import Base
 from server.database import async_engine
 from server.models.user import User
 
@@ -29,8 +29,8 @@ def anyio_backend(request):
 
 async def start_db():
     async with async_engine.begin() as conn:
-        await conn.run_sync(BaseRW.metadata.drop_all)
-        await conn.run_sync(BaseRW.metadata.create_all)
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
     # for AsyncEngine created in function scope, close and
     # clean-up pooled connections
     await async_engine.dispose()

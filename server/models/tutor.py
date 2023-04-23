@@ -3,10 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
 
-from server.models.base import BaseRW
+from server.models.base import Base
 
 
-class Tutor(BaseRW):
+class Tutor(Base):
     __tablename__ = "tutor"
     __table_args__ = ({"schema": f"{SCHEMA}"},)
 
@@ -15,4 +15,5 @@ class Tutor(BaseRW):
     last_name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
 
+    labs = relationship("Lab", back_populates="tutor")
     solutions = relationship("LabSolution", back_populates="tutor")
