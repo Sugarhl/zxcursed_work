@@ -115,7 +115,7 @@ async def test_student(test_student_in, test_db_session):
     user = User(username=test_student_in.username,
                 salt=salt,
                 password=salted_password,
-                user_type=UserType.STUDENT.value,
+                user_type=UserType.STUDENT,
                 user_id=student_id)
 
     # Add the new user to the session

@@ -2,8 +2,10 @@ from sqlalchemy import CheckConstraint, Column, Integer, String, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
+from sqlalchemy import Enum
 
 from server.models.base import BaseRW
+from server.utils import UserType
 
 
 class User(BaseRW):
@@ -12,7 +14,7 @@ class User(BaseRW):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, nullable=False)
-    user_type = Column(String(50), nullable=False, index=True)
+    user_type = Column(Enum(UserType), nullable=False, index=True)
     username = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     salt = Column(String(255), nullable=False)

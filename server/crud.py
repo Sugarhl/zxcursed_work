@@ -112,6 +112,3 @@ async def get_user_by_id(db: AsyncSession, user_id: int):
     return result.scalar_one_or_none()
 
 
-async def verify_password(password: str, salt: str, hashed_password: str) -> bool:
-    input_hashed_password = generate_salted_password(salt, password)
-    return input_hashed_password == hashed_password

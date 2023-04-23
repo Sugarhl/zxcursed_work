@@ -9,10 +9,10 @@ from server.schemas import Token
 from server.utils import UserType
 
 
-def create_access_token(user_id: int, user_type: str) -> Token:
+def create_access_token(user_id: int, user_type: UserType) -> Token:
     expire = datetime.datetime.utcnow(
     ) + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"user_id": user_id, "user_type": user_type, "exp": expire}
+    to_encode = {"user_id": user_id, "user_type": user_type.value, "exp": expire}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     return Token(access_token=encoded_jwt, token_type="bearer")
