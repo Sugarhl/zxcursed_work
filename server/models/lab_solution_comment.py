@@ -12,7 +12,7 @@ class LabSolutionComment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     solution_id = Column(Integer, ForeignKey(
-        f"{SCHEMA}.lab_solution.id"), nullable=False)
+        f"{SCHEMA}.lab_solution.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(Integer, nullable=False)
     user_type = Column(String(50), nullable=False, index=True)
     reply_id = Column(Integer, nullable=True)

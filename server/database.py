@@ -19,8 +19,7 @@ from server.models.user import User
 from server.config import DATABASE_URL
 
 SCHEMA = "lab_management"
-Base = declarative_base(metadata=MetaData(schema=SCHEMA))
-print(DATABASE_URL)
+
 async_engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 async_database = databases.Database(DATABASE_URL)
 
@@ -47,8 +46,6 @@ tables = [
 
 async def create_tables():
     async with async_engine.begin() as conn:
-
-        # await conn.run_sync(Base.metadata.drop_all)
 
         # Create tables without foreign key dependencies
         await conn.run_sync(User.__table__.create, checkfirst=True)

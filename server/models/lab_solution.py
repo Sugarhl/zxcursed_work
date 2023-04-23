@@ -18,7 +18,7 @@ class LabSolution(Base):
                         ForeignKey(f"{SCHEMA}.student.id", ondelete="CASCADE"),
                         nullable=False)
     tutor_id = Column(Integer,
-                      ForeignKey(f"{SCHEMA}.tutor.id", ondelete="CASCADE"),
+                      ForeignKey(f"{SCHEMA}.tutor.id", ondelete="NO ACTION"),
                       nullable=False)
     solution_filename = Column(String)
     file_data = Column(LargeBinary)

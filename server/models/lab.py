@@ -1,5 +1,4 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
 
@@ -14,7 +13,8 @@ class Lab(Base):
     id = Column(Integer, primary_key=True, index=True)
     lab_name = Column(String(255), nullable=False)
     description = Column(String)
-    tutor_id = Column(Integer, ForeignKey(f"{SCHEMA}.tutor.id"), nullable=False)
+    tutor_id = Column(Integer, ForeignKey(
+        f"{SCHEMA}.tutor.id", ondelete="NO ACTION"), nullable=False)
     file_of_lab = Column(String)
 
     tutor = relationship("Tutor", back_populates="labs")
