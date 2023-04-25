@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, select
+from sqlalchemy import Column, ForeignKey, Integer, LargeBinary, String, select
 # from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
@@ -14,8 +14,9 @@ class LabVariant(Base):
     lab_id = Column(Integer,
                     ForeignKey(f"{SCHEMA}.lab.id", ondelete="CASCADE"),
                     nullable=False)
-    variant_name = Column(String(255), nullable=False)
-    description = Column(String)
+    variant_number = Column(Integer, nullable=False)
+    variant_filename = Column(String)
+    file_data = Column(LargeBinary)
 
     lab = relationship("Lab", back_populates="variants")
     solutions = relationship("LabSolution", back_populates="variant")

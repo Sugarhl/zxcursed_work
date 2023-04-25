@@ -1,6 +1,5 @@
 Contents of server/models/lab.py:
-  from sqlalchemy import Column, Integer, String, select
-  from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy import Column, ForeignKey, Integer, String, select
   from sqlalchemy.orm import relationship
   from server.config import SCHEMA
   
@@ -15,103 +14,63 @@ Contents of server/models/lab.py:
       id = Column(Integer, primary_key=True, index=True)
       lab_name = Column(String(255), nullable=False)
       description = Column(String)
-      owner = Column(String(255), nullable=False)
+      tutor_id = Column(Integer, ForeignKey(
+          f"{SCHEMA}.tutor.id", ondelete="NO ACTION"), nullable=False)
       file_of_lab = Column(String)
   
+      tutor = relationship("Tutor", back_populates="labs")
       variants = relationship("LabVariant", back_populates="lab")
 
-Contents of server/models/lab_variant.py:
-  from sqlalchemy import Column, ForeignKey, Integer, String, select
-  # from sqlalchemy.ext.asyncio import AsyncSession
-  from sqlalchemy.orm import relationship
-  from server.config import SCHEMA
-  
-  from server.models.base import Base
-  
-  
-  class LabVariant(Base):
-      __tablename__ = "lab_var"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      lab_id = Column(Integer,
-                      ForeignKey(f"{SCHEMA}.lab.id", ondelete="CASCADE"),
-                      nullable=False)
-      variant_name = Column(String(255), nullable=False)
-      description = Column(String)
-  
-      lab = relationship("Lab", back_populates="variants")
-      solutions = relationship("LabSolution", back_populates="variant")
-
-Contents of server/models/lab_solution.py:
-  from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey, CheckConstraint, DateTime
-  from sqlalchemy.orm import relationship
+Contents of server/api/solutions.py:
+  from fastapi import APIRouter, Depends, HTTPException, status
+  from fastapi.security import OAuth2PasswordBearer
+  from pydantic import ValidationError
   from sqlalchemy.ext.asyncio import AsyncSession
-  from server.config import SCHEMA
-  
-  from server.models.base import Base
-  
-  
-  class LabSolution(Base):
-      __tablename__ = "lab_solution"
-      __table_args__ = ({"schema": f"{SCHEMA}"},)
-  
-      id = Column(Integer, primary_key=True, index=True)
-      lab_variant_id = Column(Integer,
-                              ForeignKey(f"{SCHEMA}.lab_var.id", ondelete="CASCADE"),
-                              nullable=False)
-      student_id = Column(Integer,
-                          ForeignKey(f"{SCHEMA}.student.id", ondelete="CASCADE"),
-                          nullable=False)
-      tutor_id = Column(Integer,
-                        ForeignKey(f"{SCHEMA}.tutor.id", ondelete="CASCADE"),
-                        nullable=False)
-      solution_filename = Column(String)
-      file_data = Column(LargeBinary)
-      mark = Column(Integer)
-  
-      variant = relationship("LabVariant", back_populates="solutions")
-      student = relationship("Student", back_populates="solutions")
-      tutor = relationship("Tutor", back_populates="solutions")
-      comments = relationship("LabSolutionComment", back_populates="solution")
-
-Contents of server/crud.py:
-  import datetime
-  from typing import Optional
-  
-  from fastapi import UploadFile
-  from sqlalchemy.ext.asyncio import AsyncSession
-  from sqlalchemy.future import select
-  from server.models.lab_solution_comment import LabSolutionComment
-  
-  
-  from server.models.user import User
-  from server.models.student import Student
-  from server.models.lab_solution import LabSolution
-  from server.models.tutor import Tutor
-  
   
   import server.schemas as schemas
-  from server.utils import UserType, generate_salt, generate_salted_password
+  from server.CRUD.comment import create_comment
+  from server.CRUD.solution import create_solution
+  from server.database import get_db
+  from server.token import decode_access_token
+  from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+  
+  router = APIRouter()
+  oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+  bearer = HTTPBearer()
   
   
-  async def add_to_db(obj, db: AsyncSession) -> int:
-      db.add(obj)
-      await db.commit()
-      await db.refresh(obj)
-      return obj.id
+  @router.post("/upload_solution", status_code=status.HTTP_201_CREATED)
+  async def upload_solution(solution: schemas.SolutionUpload, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+      try:
+          user_id, user_type = decode_access_token(auth.credentials)
+          print('AUTHORIZED')
   
-  async def create_solution(db: AsyncSession,
-                            student_id: int,
-                            lab_variant_id: int,
-                            solution_file: UploadFile) -> int:
-      solution_filename = solution_file.filename
-      file_data = await solution_file.read()
+          if user_type != "Student":
+              raise HTTPException(
+                  status_code=status.HTTP_403_FORBIDDEN,
+                  detail="Only students are allowed to upload solutions"
+              )
   
-      solution = LabSolution(
-          student_id=student_id,
-          lab_variant_id=lab_variant_id,
-          solution_filename=solution_filename,
-          file_data=file_data)
-      return await add_to_db(solution, db=db)
+          solution_id = await create_solution(db, user_id, solution.lab_variant_id, solution.solution_file)
+          return {"solution_id": solution_id}
   
+      except ValidationError as e:
+          raise HTTPException(
+              status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+  
+  
+  @router.post("/create_lab_solution_comment", status_code=status.HTTP_201_CREATED)
+  async def create_lab_solution_comment(comment: schemas.LabSolutionCommentCreate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+      try:
+          user_id, user_type = decode_access_token(auth.credentials)
+  
+          comment_id = await create_comment(db=db,
+                                            comment=comment,
+                                            user_id=user_id,
+                                            user_type=user_type)
+          return {"comment_id": comment_id}
+  
+      except ValidationError as e:
+          raise HTTPException(
+              status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+

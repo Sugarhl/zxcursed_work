@@ -62,7 +62,7 @@ async def auth_by_token(db: AsyncSession, token: str) -> User:
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="on - existent credentials")
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Non - existent credentials")
 
     if user_type == UserType.STUDENT:
         student = await get_student_by_id(db=db, user_id=user.user_id)
