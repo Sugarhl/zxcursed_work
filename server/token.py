@@ -2,17 +2,25 @@ import datetime
 from typing import Dict, Optional, Tuple, Union
 
 import jwt
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from jwt import ExpiredSignatureError, InvalidTokenError
+from server.CRUD.student import get_student_by_id
+from server.CRUD.tutor import get_tutor_by_id
+from server.CRUD.user import get_user_by_id
 from server.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
+from server.database import get_db
+from server.models.user import User
 from server.schemas import Token
 from server.utils import UserType
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def create_access_token(user_id: int, user_type: UserType) -> Token:
     expire = datetime.datetime.utcnow(
     ) + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"user_id": user_id, "user_type": user_type.value, "exp": expire}
+    to_encode = {"user_id": user_id,
+                 "user_type": user_type.value, "exp": expire}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     return Token(access_token=encoded_jwt, token_type="bearer")
@@ -45,3 +53,23 @@ def decode_access_token(token: str) -> Tuple[int, UserType]:
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user type in token")
+
+
+async def auth_by_token(db: AsyncSession, token: str) -> User:
+    user_id, user_type = decode_access_token(token)
+
+    user = await get_user_by_id(db=db, user_id=user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="on - existent credentials")
+
+    if user_type == UserType.STUDENT:
+        student = await get_student_by_id(db=db, user_id=user.user_id)
+        return student
+
+    elif user_type == UserType.TUTOR:
+        tutor = await get_tutor_by_id(db=db, user_id=user.user_id)
+        return tutor
+
+    return user

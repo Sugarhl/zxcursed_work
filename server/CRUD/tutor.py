@@ -13,3 +13,9 @@ async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> int:
         email=tutor.email,
     )
     return await add_to_db(db_tutor, db=db)
+
+
+async def get_tutor_by_id(db: AsyncSession, user_id: int):
+    stmt = select(Tutor).where(Tutor.id == user_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()

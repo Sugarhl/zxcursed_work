@@ -13,3 +13,9 @@ async def create_student(db: AsyncSession, student: schemas.UserIn) -> int:
         email=student.email,
     )
     return await add_to_db(db_student, db=db)
+
+
+async def get_student_by_id(db: AsyncSession, user_id: int):
+    stmt = select(Student).where(Student.id == user_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()

@@ -1,4 +1,5 @@
 #!/bin/bash
+rm -rf .env
 echo "Setting environment variables from .env file..."
 cp .env.prod .env
 

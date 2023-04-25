@@ -1,9 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import MetaData
 
-from sqlalchemy.pool import NullPool
 import databases
 from server.models.base import Base
 
@@ -20,6 +17,8 @@ from server.config import DATABASE_URL
 
 SCHEMA = "lab_management"
 
+
+print(DATABASE_URL)
 async_engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 async_database = databases.Database(DATABASE_URL)
 
