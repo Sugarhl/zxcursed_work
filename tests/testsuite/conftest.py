@@ -6,7 +6,9 @@ from server.main import app
 
 from server.models.base import Base
 from server.database import async_engine
+from server.models.tutor import Tutor
 from server.models.user import User
+from server.token import create_access_token
 
 from server.utils import UserType, generate_salt, generate_salted_password
 from server.schemas import UserIn
@@ -119,13 +121,15 @@ async def test_student(test_student_in, test_db_session):
     test_db_session.add(user)
     test_db_session.commit()
 
-    return test_student_in
+    token = create_access_token(user_id=user.user_id, user_type=user.user_type)
+
+    return test_student_in, token.access_token, user
 
 
 @pytest.fixture(scope="function")
 async def test_tutor(test_tutor_in, test_db_session):
-    new_tutor = Student(first_name=test_tutor_in.first_name,
-                        last_name=test_tutor_in.last_name, email=test_tutor_in.email)
+    new_tutor = Tutor(first_name=test_tutor_in.first_name,
+                      last_name=test_tutor_in.last_name, email=test_tutor_in.email)
 
     # Add the new student to the session
     test_db_session.add(new_tutor)
@@ -140,11 +144,13 @@ async def test_tutor(test_tutor_in, test_db_session):
     user = User(username=test_tutor_in.username,
                 salt=salt,
                 password=salted_password,
-                user_type=UserType.STUDENT,
+                user_type=UserType.TUTOR,
                 user_id=student_id)
 
     # Add the new user to the session
     test_db_session.add(user)
     test_db_session.commit()
 
-    return test_tutor_in
+    token = create_access_token(user_id=user.user_id, user_type=user.user_type)
+
+    return test_tutor_in, token.access_token, user

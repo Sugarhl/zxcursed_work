@@ -34,12 +34,3 @@ def swap_files(file1, file2):
 
     # Rename the temporary file to file2
     os.rename(temp_file, file2)
-
-
-class JSONEncoderWithDatetime(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime):
-            return obj.isoformat()
-        elif isinstance(obj, Enum):
-            return obj.value
-        return super().default(obj)

@@ -66,10 +66,10 @@ async def auth_by_token(db: AsyncSession, token: str) -> User:
 
     if user_type == UserType.STUDENT:
         student = await get_student_by_id(db=db, user_id=user.user_id)
-        return student
+        return student, user_type
 
     elif user_type == UserType.TUTOR:
         tutor = await get_tutor_by_id(db=db, user_id=user.user_id)
-        return tutor
+        return tutor, user_type
 
-    return user
+    return user, user_type

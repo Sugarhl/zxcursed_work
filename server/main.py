@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI
 from server.database import async_database, create_tables
 from server.api.login import router as login_router

@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import Optional
 from fastapi import UploadFile
 from pydantic import BaseModel, constr, validator
+import dateutil.parser as parser
+import pytz
 
 
 from server.generation.types import GenType
@@ -43,7 +45,10 @@ class LabCreate(BaseModel):
     @validator('date_start', 'deadline', pre=True)
     def parse_datetime(cls, value):
         if isinstance(value, str):
-            return datetime.fromisoformat(value)
+            tz_aware_datetime = parser.isoparse(value)
+            utc_datetime = tz_aware_datetime.astimezone(pytz.UTC)
+            tz_naive_datetime = utc_datetime.replace(tzinfo=None)
+            return tz_naive_datetime
         return value
 
 

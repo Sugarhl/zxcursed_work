@@ -16,5 +16,5 @@ bearer = HTTPBearer()
 
 @router.post("/protected", status_code=status.HTTP_200_OK)
 async def upload_solution(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
-    user = await auth_by_token(db=db, token=auth.credentials)
+    user, _ = await auth_by_token(db=db, token=auth.credentials)
     return {"authorized": True, "message": f"Welcome {user.first_name} {user.last_name}!!"}

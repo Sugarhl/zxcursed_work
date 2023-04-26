@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import server.schemas as schemas
-from server.CRUD.lab import create_lab, get_all_labs_by_tutor_id
+from server.CRUD.lab import create_lab, get_all_labs, get_all_labs_by_tutor_id
 from server.database import get_db
 from server.token import auth_by_token
 from server.utils import UserType
@@ -14,17 +14,17 @@ bearer = HTTPBearer()
 
 
 @router.post("/create_lab", status_code=status.HTTP_201_CREATED)
-async def create_lab(lab: schemas.LabCreate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def create_lab_route(lab: schemas.LabCreate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
-        tutor = await auth_by_token(db=db, token=auth.credentials)
+        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
 
-        if tutor.user_type != UserType.TUTOR:
+        if user_type != UserType.TUTOR:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only tutors are allowed to create labs"
             )
 
-        lab_id = await create_lab(db=db, lab=lab, tutor_id=tutor.user_id)
+        lab_id = await create_lab(db=db, lab=lab, tutor_id=tutor.id)
         return {"lab_id": lab_id}
 
     except ValidationError as e:
@@ -33,7 +33,7 @@ async def create_lab(lab: schemas.LabCreate, auth: HTTPAuthorizationCredentials 
 
 
 @router.get("/labs", response_model=list[schemas.LabOut])
-async def get_all_labs(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def get_all_labs_route(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
         tutor = await auth_by_token(db=db, token=auth.credentials)
 
