@@ -1,6 +1,5 @@
-from sqlalchemy import CheckConstraint, Column, Integer, String, select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String
+# from sqlalchemy.dialects.postgresql import UUID  MAYBE LATER
 from server.config import SCHEMA
 from sqlalchemy import Enum
 

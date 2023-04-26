@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey, CheckConstraint, DateTime
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.asyncio import AsyncSession
 from server.config import SCHEMA
 
 from server.models.base import Base

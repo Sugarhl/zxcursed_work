@@ -1,7 +1,9 @@
 Contents of server/models/lab.py:
-  from sqlalchemy import Column, ForeignKey, Integer, String, select
+  
+  from sqlalchemy import Column, Enum, ForeignKey, Integer, String, DateTime, select
   from sqlalchemy.orm import relationship
   from server.config import SCHEMA
+  from server.generation import types
   
   
   from server.models.base import Base
@@ -13,64 +15,60 @@ Contents of server/models/lab.py:
   
       id = Column(Integer, primary_key=True, index=True)
       lab_name = Column(String(255), nullable=False)
-      description = Column(String)
       tutor_id = Column(Integer, ForeignKey(
           f"{SCHEMA}.tutor.id", ondelete="NO ACTION"), nullable=False)
-      file_of_lab = Column(String)
+      date_start = Column(DateTime, nullable=True)
+      deadline = Column(DateTime, nullable=True)
+      description = Column(String)
+  
+      generator_type = Column(Enum(types.GenType), nullable=False, index=True)
   
       tutor = relationship("Tutor", back_populates="labs")
       variants = relationship("LabVariant", back_populates="lab")
 
-Contents of server/api/solutions.py:
-  from fastapi import APIRouter, Depends, HTTPException, status
-  from fastapi.security import OAuth2PasswordBearer
-  from pydantic import ValidationError
+Contents of server/models/student.py:
+  from sqlalchemy import Column, Integer, String, select
   from sqlalchemy.ext.asyncio import AsyncSession
-  
-  import server.schemas as schemas
-  from server.CRUD.comment import create_comment
-  from server.CRUD.solution import create_solution
-  from server.database import get_db
-  from server.token import decode_access_token
-  from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-  
-  router = APIRouter()
-  oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
-  bearer = HTTPBearer()
+  from sqlalchemy.orm import relationship
+  from server.config import SCHEMA
   
   
-  @router.post("/upload_solution", status_code=status.HTTP_201_CREATED)
-  async def upload_solution(solution: schemas.SolutionUpload, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
-      try:
-          user_id, user_type = decode_access_token(auth.credentials)
-          print('AUTHORIZED')
-  
-          if user_type != "Student":
-              raise HTTPException(
-                  status_code=status.HTTP_403_FORBIDDEN,
-                  detail="Only students are allowed to upload solutions"
-              )
-  
-          solution_id = await create_solution(db, user_id, solution.lab_variant_id, solution.solution_file)
-          return {"solution_id": solution_id}
-  
-      except ValidationError as e:
-          raise HTTPException(
-              status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+  from server.models.base import Base
   
   
-  @router.post("/create_lab_solution_comment", status_code=status.HTTP_201_CREATED)
-  async def create_lab_solution_comment(comment: schemas.LabSolutionCommentCreate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
-      try:
-          user_id, user_type = decode_access_token(auth.credentials)
+  class Student(Base):
+      __tablename__ = "student"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
   
-          comment_id = await create_comment(db=db,
-                                            comment=comment,
-                                            user_id=user_id,
-                                            user_type=user_type)
-          return {"comment_id": comment_id}
+      id = Column(Integer, primary_key=True, index=True)
+      first_name = Column(String(255), nullable=False)
+      last_name = Column(String(255), nullable=False)
+      email = Column(String(255), nullable=False, unique=True)
   
-      except ValidationError as e:
-          raise HTTPException(
-              status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+      solutions = relationship("LabSolution", back_populates="student")
+      results = relationship("LabResult", back_populates="student")
+
+Contents of server/models/lab_variant.py:
+  from sqlalchemy import Column, ForeignKey, Integer, LargeBinary, String, select
+  # from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy.orm import relationship
+  from server.config import SCHEMA
+  
+  from server.models.base import Base
+  
+  
+  class LabVariant(Base):
+      __tablename__ = "lab_var"
+      __table_args__ = ({"schema": f"{SCHEMA}"},)
+  
+      id = Column(Integer, primary_key=True, index=True)
+      lab_id = Column(Integer,
+                      ForeignKey(f"{SCHEMA}.lab.id", ondelete="CASCADE"),
+                      nullable=False)
+      variant_number = Column(Integer, nullable=False)
+      variant_filename = Column(String)
+      file_data = Column(LargeBinary)
+  
+      lab = relationship("Lab", back_populates="variants")
+      solutions = relationship("LabSolution", back_populates="variant")
 

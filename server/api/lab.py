@@ -32,13 +32,13 @@ async def create_lab_route(lab: schemas.LabCreate, auth: HTTPAuthorizationCreden
             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.get("/labs", response_model=list[schemas.LabOut])
+@router.get("/get_labs", response_model=list[schemas.LabOut])
 async def get_all_labs_route(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
-        tutor = await auth_by_token(db=db, token=auth.credentials)
+        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
 
-        if tutor.user_type == UserType.TUTOR:
-            labs = await get_all_labs_by_tutor_id(db, tutor.user_id)
+        if user_type == UserType.TUTOR:
+            labs = await get_all_labs_by_tutor_id(db, tutor.id)
         else:
             labs = await get_all_labs(db)
 

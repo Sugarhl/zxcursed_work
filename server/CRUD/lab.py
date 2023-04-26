@@ -22,11 +22,13 @@ async def get_lab(db: AsyncSession, lab_id: int) -> Lab:
 
 
 async def get_all_labs_by_tutor_id(db: AsyncSession, tutor_id: int) -> list[Lab]:
-    return await db.execute(select(Lab).filter(Lab.tutor_id == tutor_id)).scalars().all()
+    labs = await db.execute(select(Lab).filter(Lab.tutor_id == tutor_id))
+    return labs.scalars().all()
 
 
 async def get_all_labs(db: AsyncSession) -> list[Lab]:
-    return await db.execute(select(Lab)).scalars().all()
+    labs = await db.execute(select(Lab))
+    return labs.scalars().all()
 
 
 async def delete_lab(db: AsyncSession, lab_id: int):

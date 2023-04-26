@@ -40,3 +40,33 @@ async def test_lab_create(client: AsyncClient, test_tutor, test_db_session):
     assert lab_db.date_start == lab_create.date_start
     assert lab_db.deadline == lab_create.deadline
     assert lab_db.tutor_id == creds.user_id
+
+
+@pytest.mark.anyio
+async def test_lab_create_negative(client: AsyncClient, test_student, test_tutor):
+
+    _, token, _ = test_student
+
+    lab_create = LabCreate(
+        lab_name="Test Lab",
+        description="A test lab",
+        date_start=datetime.now(),
+        deadline=datetime.now(),
+        generator_type=GenType.BASE,
+    )
+
+    response = await client.post("lab/create_lab", headers={"Authorization": f"Bearer {token}"},
+                                 json=jsonable_encoder(lab_create))
+
+    assert response.status_code == 403
+
+    
+    tutor, token, creds = test_tutor
+    
+    json_data = jsonable_encoder(lab_create)
+    json_data['generator_type'] = "SMTH"
+
+    response = await client.post("lab/create_lab", headers={"Authorization": f"Bearer {token}"},
+                                 json=json_data)
+
+    assert response.status_code == 422

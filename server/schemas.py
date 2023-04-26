@@ -9,6 +9,8 @@ import pytz
 
 from server.generation.types import GenType
 
+# auth
+
 
 class UserIn(BaseModel):
     username: str
@@ -23,6 +25,7 @@ class Token(BaseModel):
     token_type: str
 
 
+# solutions
 class SolutionUpload(BaseModel):
     lab_variant_id: int
     solution_text: Optional[str]
@@ -35,6 +38,7 @@ class LabSolutionCommentCreate(BaseModel):
     text: str
 
 
+# labs
 class LabCreate(BaseModel):
     lab_name: constr(max_length=255)
     description: str = None
@@ -63,3 +67,10 @@ class LabOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+# variants
+
+
+class GenerateParams(BaseModel):
+    lab_id: int
