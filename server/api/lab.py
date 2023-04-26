@@ -32,7 +32,7 @@ async def create_lab(lab: schemas.LabCreate, auth: HTTPAuthorizationCredentials 
             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.get("/labs", response_model=list[schemas.Lab])
+@router.get("/labs", response_model=list[schemas.LabOut])
 async def get_all_labs(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
         tutor = await auth_by_token(db=db, token=auth.credentials)

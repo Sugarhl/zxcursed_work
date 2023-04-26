@@ -1,9 +1,13 @@
+from enum import Enum
 import os
 import random
 import string
 import uuid
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+
+import json
+from datetime import datetime
 
 # Set up the testing database URL
 TEST_DATABASE_URL = "postgresql://user:vikisah01@rc1b-8aubff9hb0epodpz.mdb.yandexcloud.net:6432/testing_tasks_manager"
@@ -30,3 +34,12 @@ def swap_files(file1, file2):
 
     # Rename the temporary file to file2
     os.rename(temp_file, file2)
+
+
+class JSONEncoderWithDatetime(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        elif isinstance(obj, Enum):
+            return obj.value
+        return super().default(obj)

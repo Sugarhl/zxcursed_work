@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from httpx import AsyncClient
 import pytest
 
@@ -6,6 +7,7 @@ from server.CRUD.lab import get_lab
 from server.generation.types import GenType
 from server.models.lab import Lab
 from server.schemas import LabCreate
+from tests.testsuite.utils import JSONEncoderWithDatetime
 
 pytestmark = pytest.mark.anyio
 
@@ -15,7 +17,6 @@ async def test_login_for_access_token(client: AsyncClient, test_tutor, test_db_s
 
     assert test_tutor
 
-
     lab_create = LabCreate(
         lab_name="Test Lab",
         description="A test lab",
@@ -23,8 +24,11 @@ async def test_login_for_access_token(client: AsyncClient, test_tutor, test_db_s
         deadline=datetime(2023, 5, 8),
         generator_type=GenType.BASE,
     )
-    response = client.post("/create_lab", json=lab_create.dict(),
-                           headers={"Authorization": "Bearer test_token"})
+
+    json_data = json.dumps(lab_create.dict(), cls=JSONEncoderWithDatetime)
+
+    response = await client.post("/create_lab", headers={"Authorization": "Bearer test_token"},
+                                 json=json_data)
     assert response.status_code == 201
 
     # Check that the lab was created in the database

@@ -36,7 +36,6 @@ class LabSolutionCommentCreate(BaseModel):
 class LabCreate(BaseModel):
     lab_name: constr(max_length=255)
     description: str = None
-    file_of_lab: str
     date_start: Optional[datetime] = None
     deadline: Optional[datetime] = None
     generator_type: GenType
