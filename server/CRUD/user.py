@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.models.student import Student
@@ -44,7 +45,7 @@ async def get_user_by_email(db: AsyncSession, email: str, user_type: UserType):
     return result.scalar_one_or_none()
 
 
-async def get_user_by_id(db: AsyncSession, user_id: int):
+async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID):
     stmt = select(User).where(User.id == user_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()

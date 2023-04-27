@@ -47,9 +47,9 @@ async def register(user_type: UserType, user_in: UserIn, db: AsyncSession = Depe
                                 detail="Bad tutor data")
 
     try:
-        user_id = await create_user(db=db, user_in=user_in, user_type=user_type, user_id=user_id)
+        creds_id = await create_user(db=db, user_in=user_in, user_type=user_type, user_id=user_id)
     except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Bad credetials")
 
-    return create_access_token(user_id, user_type)
+    return create_access_token(creds_id, user_type)

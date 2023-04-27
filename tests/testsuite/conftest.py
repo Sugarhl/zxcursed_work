@@ -121,7 +121,7 @@ async def test_student(test_student_in, test_db_session):
     test_db_session.add(user)
     test_db_session.commit()
 
-    token = create_access_token(user_id=user.user_id, user_type=user.user_type)
+    token = create_access_token(user_id=user.id, user_type=user.user_type)
 
     return test_student_in, token.access_token, user
 
@@ -151,6 +151,6 @@ async def test_tutor(test_tutor_in, test_db_session):
     test_db_session.add(user)
     test_db_session.commit()
 
-    token = create_access_token(user_id=user.user_id, user_type=user.user_type)
+    token = create_access_token(user_id=user.id, user_type=user.user_type)
 
     return test_tutor_in, token.access_token, user
