@@ -38,7 +38,7 @@ class GroupUpdate(BaseModel):
         orm_mode = True
 
 
-class Group(BaseModel):
+class GroupOut(BaseModel):
     id: int
     name: str
     tutor_id: int

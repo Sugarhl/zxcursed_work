@@ -28,7 +28,7 @@ async def create_group_route(group: schemas.GroupCreate, auth: HTTPAuthorization
             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.get("/all", response_model=list[schemas.Group])
+@router.get("/all", response_model=list[schemas.GroupOut])
 async def get_all_groups_route(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
@@ -43,7 +43,7 @@ async def get_all_groups_route(auth: HTTPAuthorizationCredentials = Depends(bear
             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.get("/tutor/all", response_model=list[schemas.Group])
+@router.get("/tutor/all", response_model=list[schemas.GroupOut])
 async def get_all_groups_route(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
@@ -58,19 +58,15 @@ async def get_all_groups_route(auth: HTTPAuthorizationCredentials = Depends(bear
             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.get("/get/{group_id}", response_model=schemas.Group)
+@router.get("/get/{group_id}", response_model=schemas.GroupOut)
 async def get_group_route(group_id: int, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
-        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
-        tutor_check(user_type=user_type)
-
+        _, _ = await auth_by_token(db=db, token=auth.credentials)
         group = await get_group(db, group_id)
 
-        if group.tutor_id != tutor.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this group"
-            )
+        if not group:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Group does not exist")
 
         return group
 
@@ -79,14 +75,19 @@ async def get_group_route(group_id: int, auth: HTTPAuthorizationCredentials = De
             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.put("/udpate/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/update/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_group_route(group_id: int, group: schemas.GroupUpdate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+        tutor_check(user_type=user_type)
 
         existing_group = await get_group(db, group_id)
 
-        if existing_group.tutor_id != tutor.id:
+        if not existing_group:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Group does not exist")
+
+        if existing_group.tutor_id != tutor.id and existing_group.tutor_id is not None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You don't have access to this group"
@@ -99,27 +100,27 @@ async def update_group_route(group_id: int, group: schemas.GroupUpdate, auth: HT
             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.put("/groups/{group_id}/students/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def set_student_group_route(group_id: int, student_id: int, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
-    try:
-        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+# @router.put("/set_student", status_code=status.HTTP_204_NO_CONTENT)
+# async def set_student_group_route(group_id: int, student_id: int, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+#     try:
+#         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
 
-        group = await get_group(db, group_id)
+#         group = await get_group(db, group_id)
 
-        if group.tutor_id != tutor.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this group"
-            )
+#         if group.tutor_id != tutor.id:
+#             raise HTTPException(
+#                 status_code=status.HTTP_403_FORBIDDEN,
+#                 detail="You don't have access to this group"
+#             )
 
-        student = await get_student_by_id(db, student_id)
+#         student = await get_student_by_id(db, student_id)
 
-        if student.group_id == group_id:
-            return
+#         if student.group_id == group_id:
+#             return
 
-        student.group_id = group_id
-        await db.commit()
+#         student.group_id = group_id
+#         await db.commit()
 
-    except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+#     except ValidationError as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())

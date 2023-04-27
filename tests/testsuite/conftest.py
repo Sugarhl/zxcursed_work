@@ -6,6 +6,7 @@ from server.main import app
 
 from server.models.base import Base
 from server.database import async_engine
+from server.models.group import Group
 from server.models.tutor import Tutor
 from server.models.user import User
 from server.token import create_access_token
@@ -154,3 +155,17 @@ async def test_tutor(test_tutor_in, test_db_session):
     token = create_access_token(user_id=user.id, user_type=user.user_type)
 
     return test_tutor_in, token.access_token, user
+
+
+@pytest.fixture(scope="function")
+async def test_group(test_tutor, test_student, test_db_session):
+
+    tutor, _, _ = test_tutor
+    group = Group(name="TEST GROUP", tutor_id=tutor.id)
+    test_db_session.add(group)
+    test_db_session.commit(group)
+
+    student, _, _ = test_student
+    student.group_id = group.id
+
+    return group, tutor, student
