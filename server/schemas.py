@@ -30,6 +30,11 @@ class GroupCreate(BaseModel):
     name: str
 
 
+class SetStudentToGroup(BaseModel):
+    student_id: int
+    group_id: int
+
+
 class GroupUpdate(BaseModel):
     name: Optional[str] = None
     tutor_id: Optional[int] = None

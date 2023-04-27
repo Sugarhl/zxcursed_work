@@ -14,6 +14,20 @@ router = APIRouter()
 bearer = HTTPBearer()
 
 
+def group_check(group):
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Group does not exist")
+
+
+def group_check_access(group, tutor):
+    if group.tutor_id != tutor.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have access to this group"
+        )
+
+
 @router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_group_route(group: schemas.GroupCreate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
     try:
@@ -63,11 +77,7 @@ async def get_group_route(group_id: int, auth: HTTPAuthorizationCredentials = De
     try:
         _, _ = await auth_by_token(db=db, token=auth.credentials)
         group = await get_group(db, group_id)
-
-        if not group:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Group does not exist")
-
+        group_check(group)
         return group
 
     except ValidationError as e:
@@ -83,15 +93,9 @@ async def update_group_route(group_id: int, group: schemas.GroupUpdate, auth: HT
 
         existing_group = await get_group(db, group_id)
 
-        if not existing_group:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Group does not exist")
+        group_check(existing_group)
 
-        if existing_group.tutor_id != tutor.id and existing_group.tutor_id is not None:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this group"
-            )
+        group_check_access(existing_group, tutor)
 
         await update_group(db, group_id, group)
 
@@ -100,27 +104,30 @@ async def update_group_route(group_id: int, group: schemas.GroupUpdate, auth: HT
             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-# @router.put("/set_student", status_code=status.HTTP_204_NO_CONTENT)
-# async def set_student_group_route(group_id: int, student_id: int, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
-#     try:
-#         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+@router.put("/set_student", status_code=status.HTTP_204_NO_CONTENT)
+async def set_student_group_route(params: schemas.SetStudentToGroup, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+    try:
+        user, user_type = await auth_by_token(db=db, token=auth.credentials)
 
-#         group = await get_group(db, group_id)
+        group = await get_group(db, params.group_id)
+        group_check(group)
 
-#         if group.tutor_id != tutor.id:
-#             raise HTTPException(
-#                 status_code=status.HTTP_403_FORBIDDEN,
-#                 detail="You don't have access to this group"
-#             )
+        student = await get_student_by_id(db, params.student_id)
 
-#         student = await get_student_by_id(db, student_id)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Student does not exist")
 
-#         if student.group_id == group_id:
-#             return
+        if user_type == UserType.STUDENT:
+            if student.id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Only student and tutor can change his group"
+                )
 
-#         student.group_id = group_id
-#         await db.commit()
+        student.group_id = group.id
+        await db.commit()
 
-#     except ValidationError as e:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
