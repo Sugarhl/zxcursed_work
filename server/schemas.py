@@ -28,12 +28,20 @@ class Token(BaseModel):
 
 class GroupCreate(BaseModel):
     name: str
-    tutor_id: int
 
 
 class GroupUpdate(BaseModel):
     name: Optional[str] = None
     tutor_id: Optional[int] = None
+
+    class Config:
+        orm_mode = True
+
+
+class Group(BaseModel):
+    id: int
+    name: str
+    tutor_id: int
 
     class Config:
         orm_mode = True
