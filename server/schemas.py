@@ -23,6 +23,20 @@ class UserIn(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+# groups
+
+
+class GroupCreate(BaseModel):
+    name: str
+    tutor_id: int
+
+
+class GroupUpdate(BaseModel):
+    name: Optional[str] = None
+    tutor_id: Optional[int] = None
+
+    class Config:
+        orm_mode = True
 
 
 # solutions
@@ -70,7 +84,5 @@ class LabOut(BaseModel):
 
 
 # variants
-
-
 class GenerateParams(BaseModel):
     lab_id: int

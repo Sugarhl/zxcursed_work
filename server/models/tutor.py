@@ -17,3 +17,5 @@ class Tutor(Base):
 
     labs = relationship("Lab", back_populates="tutor")
     solutions = relationship("LabSolution", back_populates="tutor")
+
+    groups = relationship('Group', back_populates='tutor')
