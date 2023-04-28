@@ -4,7 +4,6 @@ from httpx import AsyncClient
 import pytest
 from server.models.group import Group
 
-from server.schemas import GroupCreate
 from fastapi.encoders import jsonable_encoder
 
 pytestmark = pytest.mark.anyio
@@ -12,15 +11,15 @@ pytestmark = pytest.mark.anyio
 
 @pytest.mark.anyio
 async def test_create_group(client: AsyncClient, test_tutor, test_db_session):
-    tutor, token, creds = test_tutor
+    tutor, token, creds = await test_tutor()
 
-    group_create = GroupCreate(
-        name="Test Group",
-        tutor_id=creds.user_id
+    group_create = GroupCreate(name="Test Group", tutor_id=creds.user_id)
+
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
     )
-
-    response = await client.post("/group/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(group_create))
 
     assert response.status_code == 201
 
@@ -33,34 +32,38 @@ async def test_create_group(client: AsyncClient, test_tutor, test_db_session):
 
 
 @pytest.mark.anyio
-async def test_create_group_negative(client: AsyncClient, test_student, test_tutor):
-
-    _, token, _ = test_student
+async def test_create_group_negative(client: AsyncClient, test_student):
+    _, token, _ = await test_student()
 
     group_create = GroupCreate(
         name="Test Group",
     )
 
-    response = await client.post("/group/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(group_create))
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
+    )
 
     assert response.status_code == 403
 
 
 @pytest.mark.anyio
 async def test_get_group(client: AsyncClient, test_tutor):
-    tutor, token, creds = test_tutor
+    tutor, token, creds = await test_tutor()
 
-    group_create = GroupCreate(
-        name="Test Group",
-        tutor_id=creds.user_id
+    group_create = GroupCreate(name="Test Group", tutor_id=creds.user_id)
+
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
     )
-
-    response = await client.post("/group/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(group_create))
     group_id = response.json()["group_id"]
 
-    response = await client.get(f"/group/get/{group_id}", headers={"Authorization": f"Bearer {token}"})
+    response = await client.get(
+        f"/group/get/{group_id}", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == 200
     assert response.json()["id"] == group_id
     assert response.json()["name"] == group_create.name
@@ -69,30 +72,34 @@ async def test_get_group(client: AsyncClient, test_tutor):
 
 @pytest.mark.anyio
 async def test_get_group_negative(client: AsyncClient, test_student):
-    _, token, _ = test_student
+    _, token, _ = await test_student()
 
-    response = await client.get(f"/group/get/{100}", headers={"Authorization": f"Bearer {token}"})
+    response = await client.get(
+        f"/group/get/{100}", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == 404
 
 
 @pytest.mark.anyio
 async def test_update_group_name(client: AsyncClient, test_tutor, test_db_session):
-    tutor, token, creds = test_tutor
+    tutor, token, creds = await test_tutor()
 
-    group_create = GroupCreate(
-        name="Test Group"
+    group_create = GroupCreate(name="Test Group")
+
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
     )
-
-    response = await client.post("/group/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(group_create))
     group_id = response.json()["group_id"]
 
-    group_update = GroupUpdate(
-        name="Updated Test Group"
-    )
+    group_update = GroupUpdate(name="Updated Test Group")
 
-    response = await client.put(f"/group/update/{group_id}", headers={"Authorization": f"Bearer {token}"},
-                                json=jsonable_encoder(group_update))
+    response = await client.put(
+        f"/group/update/{group_id}",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_update),
+    )
 
     assert response.status_code == 204
 
@@ -103,24 +110,27 @@ async def test_update_group_name(client: AsyncClient, test_tutor, test_db_sessio
 
 @pytest.mark.anyio
 async def test_update_group_tutor(client: AsyncClient, test_tutor, test_db_session):
-    tutor, token, creds = test_tutor
-    _, _, new_tutor_creds = test_tutor
+    tutor, token, creds = await test_tutor()
+    _, _, new_tutor_creds = await test_tutor()
 
-    group_create = GroupCreate(
-        name="Test Group"
+    group_create = GroupCreate(name="Test Group")
+
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
     )
-
-    response = await client.post("/group/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(group_create))
     group_id = response.json()["group_id"]
 
     group_update = GroupUpdate(
-        name="Updated Test Group",
-        tutor_id=new_tutor_creds.user_id
+        name="Updated Test Group", tutor_id=new_tutor_creds.user_id
     )
 
-    response = await client.put(f"/group/update/{group_id}", headers={"Authorization": f"Bearer {token}"},
-                                json=jsonable_encoder(group_update))
+    response = await client.put(
+        f"/group/update/{group_id}",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_update),
+    )
 
     assert response.status_code == 204
 
@@ -132,57 +142,67 @@ async def test_update_group_tutor(client: AsyncClient, test_tutor, test_db_sessi
 
 @pytest.mark.anyio
 async def test_update_group_negative(client: AsyncClient, test_student, test_tutor):
+    tutor, token, creds = await test_tutor()
 
-    tutor, token, creds = test_tutor
+    group_create = GroupCreate(name="Test Group")
 
-    group_create = GroupCreate(
-        name="Test Group"
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
     )
-
-    response = await client.post("/group/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(group_create))
 
     group_id = response.json()["group_id"]
 
-    _, token, _ = test_student
+    _, token, _ = await test_student()
 
     group_update = GroupUpdate(
         name="Updated Test Group",
     )
 
-    response = await client.put(f"/group/update/{group_id}", headers={"Authorization": f"Bearer {token}"},
-                                json=jsonable_encoder(group_update))
+    response = await client.put(
+        f"/group/update/{group_id}",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_update),
+    )
     assert response.status_code == 403
 
-    tutor, token, creds = test_tutor
+    tutor, token, creds = await test_tutor()
 
-    response = await client.put(f"/group/update/{1000000}", headers={"Authorization": f"Bearer {token}"},
-                                json=jsonable_encoder(group_update))
+    response = await client.put(
+        f"/group/update/{1000000}",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_update),
+    )
     assert response.status_code == 404
 
 
 @pytest.mark.anyio
-async def test_set_student_to_group(client: AsyncClient, test_tutor, test_student, test_db_session):
-    tutor, token, creds = test_tutor
+async def test_set_student_to_group(
+    client: AsyncClient, test_tutor, test_student, test_db_session
+):
+    tutor, token, creds = await test_tutor()
 
-    group_create = GroupCreate(
-        name="Test Group",
-        tutor_id=creds.user_id
+    group_create = GroupCreate(name="Test Group", tutor_id=creds.user_id)
+
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
     )
-
-    response = await client.post("/group/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(group_create))
     group_id = response.json()["group_id"]
 
-    _, token, student_creds = test_student
+    _, token, student_creds = await test_student()
 
     set_student_to_group = SetStudentToGroup(
-        student_id=student_creds.user_id,
-        group_id=group_id
+        student_id=student_creds.user_id, group_id=group_id
     )
 
-    response = await client.put("/group/set_student", headers={"Authorization": f"Bearer {token}"},
-                                json=jsonable_encoder(set_student_to_group))
+    response = await client.put(
+        "/group/set_student",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(set_student_to_group),
+    )
 
     assert response.status_code == 204
 
@@ -192,26 +212,29 @@ async def test_set_student_to_group(client: AsyncClient, test_tutor, test_studen
 
 
 @pytest.mark.anyio
-async def test_set_student_to_group_negative(client: AsyncClient, test_student, test_tutor):
-    tutor, token, creds = test_tutor
+async def test_set_student_incorrect_student(
+    client: AsyncClient,
+    test_student,
+    test_tutor,
+):
+    tutor, token, creds = await test_tutor()
 
-    group_create = GroupCreate(
-        name="Test Group",
-        tutor_id=creds.user_id
+    group_create = GroupCreate(name="Test Group", tutor_id=creds.user_id)
+
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
     )
-
-    response = await client.post("/group/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(group_create))
 
     group_id = response.json()["group_id"]
-    _, st_token, old_creds = test_student
 
-    set_student_to_group = SetStudentToGroup(
-        student_id=23123,
-        group_id=group_id
+    set_student_to_group = SetStudentToGroup(student_id=23123, group_id=group_id)
+
+    response = await client.put(
+        "/group/set_student",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(set_student_to_group),
     )
-
-    response = await client.put("/group/set_student", headers={"Authorization": f"Bearer {token}"},
-                                json=jsonable_encoder(set_student_to_group))
 
     assert response.status_code == 400

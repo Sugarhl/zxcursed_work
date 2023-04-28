@@ -6,16 +6,15 @@ pytestmark = pytest.mark.anyio
 
 @pytest.mark.anyio
 async def test_login_for_access_token(client: AsyncClient, test_student):
-
-    student, _, _ = test_student
+    student, _, _ = await test_student()
 
     headers = {
-        'accept': 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded'
+        "accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
     }
     data = {
-        'username': f'{student.username}',
-        'password': f'{student.password}',
+        "username": f"{student.username}",
+        "password": f"{student.password}",
     }
 
     response = await client.post("/auth/token", headers=headers, data=data)
@@ -29,12 +28,12 @@ async def test_login_for_access_token(client: AsyncClient, test_student):
 @pytest.mark.anyio
 async def test_login_not_exists(client: AsyncClient):
     headers = {
-        'accept': 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded'
+        "accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
     }
     data = {
-        'username': 'not_exists',
-        'password': 'not_exists}',
+        "username": "not_exists",
+        "password": "not_exists}",
     }
 
     response = await client.post("/auth/token", headers=headers, data=data)

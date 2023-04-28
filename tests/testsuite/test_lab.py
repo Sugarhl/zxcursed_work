@@ -12,8 +12,7 @@ pytestmark = pytest.mark.anyio
 
 @pytest.mark.anyio
 async def test_lab_create(client: AsyncClient, test_tutor, test_db_session):
-
-    tutor, token, creds = test_tutor
+    tutor, token, creds = await test_tutor()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
@@ -23,8 +22,11 @@ async def test_lab_create(client: AsyncClient, test_tutor, test_db_session):
         generator_type=GenType.BASE,
     )
 
-    response = await client.post("lab/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(lab_create))
+    response = await client.post(
+        "lab/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(lab_create),
+    )
 
     assert response.status_code == 201
 
@@ -41,8 +43,7 @@ async def test_lab_create(client: AsyncClient, test_tutor, test_db_session):
 
 @pytest.mark.anyio
 async def test_lab_create_negative(client: AsyncClient, test_student, test_tutor):
-
-    _, token, _ = test_student
+    _, token, _ = await test_student()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
@@ -52,17 +53,21 @@ async def test_lab_create_negative(client: AsyncClient, test_student, test_tutor
         generator_type=GenType.BASE,
     )
 
-    response = await client.post("lab/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=jsonable_encoder(lab_create))
+    response = await client.post(
+        "lab/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(lab_create),
+    )
 
     assert response.status_code == 403
 
-    tutor, token, creds = test_tutor
+    tutor, token, creds = await test_tutor()
 
     json_data = jsonable_encoder(lab_create)
-    json_data['generator_type'] = "SMTH"
+    json_data["generator_type"] = "SMTH"
 
-    response = await client.post("lab/create", headers={"Authorization": f"Bearer {token}"},
-                                 json=json_data)
+    response = await client.post(
+        "lab/create", headers={"Authorization": f"Bearer {token}"}, json=json_data
+    )
 
     assert response.status_code == 422

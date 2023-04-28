@@ -40,8 +40,15 @@ async def start_db():
 def run_server():
     config.testig_mode = True
     proc = subprocess.Popen(
-        ["uvicorn", "myapp.main:app", "--host",
-            "localhost", "--port", "8000", "--reload"],
+        [
+            "uvicorn",
+            "myapp.main:app",
+            "--host",
+            "localhost",
+            "--port",
+            "8000",
+            "--reload",
+        ],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -69,103 +76,130 @@ async def client(run_server) -> AsyncClient:
         await async_engine.dispose()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def test_student_in():
-    unique_id = f"{generate_random_string()}"
-    test_user = UserIn(username=f"teststudent_{unique_id}",
-                       password="testpassword",
-                       first_name="Test",
-                       last_name="Student",
-                       email=f"test_{unique_id}@example.com")
-    return test_user
+    def do_test_student_in():
+        unique_id = f"{generate_random_string()}"
+        test_user = UserIn(
+            username=f"teststudent_{unique_id}",
+            password="testpassword",
+            first_name="Test",
+            last_name="Student",
+            email=f"test_{unique_id}@example.com",
+        )
+        return test_user
+
+    return do_test_student_in
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def test_tutor_in():
-    unique_id = f"{generate_random_string()}"
-    test_user = UserIn(username=f"test_tutor_{unique_id}",
-                       password="testpassword",
-                       first_name="Test",
-                       last_name="Tutor",
-                       email=f"test_{unique_id}@example.com")
-    return test_user
+    def do_test_tutor_in():
+        unique_id = f"{generate_random_string()}"
+        test_user = UserIn(
+            username=f"test_tutor_{unique_id}",
+            password="testpassword",
+            first_name="Test",
+            last_name="Tutor",
+            email=f"test_{unique_id}@example.com",
+        )
+        return test_user
+
+    return do_test_tutor_in
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def test_db_session():
     with test_session_factory() as session:
         yield session
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def test_student(test_student_in, test_db_session):
-    new_student = Student(first_name=test_student_in.first_name,
-                          last_name=test_student_in.last_name, email=test_student_in.email)
+    async def create_test_student():
+        student = test_student_in()
+        new_student = Student(
+            first_name=student.first_name,
+            last_name=student.last_name,
+            email=student.email,
+        )
 
-    # Add the new student to the session
-    test_db_session.add(new_student)
-    test_db_session.commit()
+        # Add the new student to the session
+        test_db_session.add(new_student)
+        test_db_session.commit()
 
-    student_id = new_student.id
+        student_id = new_student.id
 
-    # Create a new user
-    salt = generate_salt()
-    salted_password = generate_salted_password(salt, test_student_in.password)
+        # Create a new user
+        salt = generate_salt()
+        salted_password = generate_salted_password(salt, student.password)
 
-    user = User(username=test_student_in.username,
-                salt=salt,
-                password=salted_password,
-                user_type=UserType.STUDENT,
-                user_id=student_id)
+        user = User(
+            username=student.username,
+            salt=salt,
+            password=salted_password,
+            user_type=UserType.STUDENT,
+            user_id=student_id,
+        )
 
-    # Add the new user to the session
-    test_db_session.add(user)
-    test_db_session.commit()
+        # Add the new user to the session
+        test_db_session.add(user)
+        test_db_session.commit()
 
-    token = create_access_token(user_id=user.id, user_type=user.user_type)
+        token = create_access_token(user_id=user.id, user_type=user.user_type)
 
-    return test_student_in, token.access_token, user
+        return student, token.access_token, user
+
+    return create_test_student
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def test_tutor(test_tutor_in, test_db_session):
-    new_tutor = Tutor(first_name=test_tutor_in.first_name,
-                      last_name=test_tutor_in.last_name, email=test_tutor_in.email)
+    async def create_test_tutor():
+        tutor = test_tutor_in()
+        new_tutor = Tutor(
+            first_name=tutor.first_name,
+            last_name=tutor.last_name,
+            email=tutor.email,
+        )
 
-    # Add the new student to the session
-    test_db_session.add(new_tutor)
-    test_db_session.commit()
+        # Add the new student to the session
+        test_db_session.add(new_tutor)
+        test_db_session.commit()
 
-    student_id = new_tutor.id
+        student_id = new_tutor.id
 
-    # Create a new user
-    salt = generate_salt()
-    salted_password = generate_salted_password(salt, test_tutor_in.password)
+        # Create a new user
+        salt = generate_salt()
+        salted_password = generate_salted_password(salt, tutor.password)
 
-    user = User(username=test_tutor_in.username,
-                salt=salt,
-                password=salted_password,
-                user_type=UserType.TUTOR,
-                user_id=student_id)
+        user = User(
+            username=tutor.username,
+            salt=salt,
+            password=salted_password,
+            user_type=UserType.TUTOR,
+            user_id=student_id,
+        )
 
-    # Add the new user to the session
-    test_db_session.add(user)
-    test_db_session.commit()
+        # Add the new user to the session
+        test_db_session.add(user)
+        test_db_session.commit()
 
-    token = create_access_token(user_id=user.id, user_type=user.user_type)
+        token = create_access_token(user_id=user.id, user_type=user.user_type)
 
-    return test_tutor_in, token.access_token, user
+        return tutor, token.access_token, user
+
+    return create_test_tutor
 
 
-@pytest.fixture(scope="function")
-async def test_group(test_tutor, test_student, test_db_session):
+# @pytest.fixture
+# async def test_group(test_tutor, test_student, test_db_session):
+#     tutor, _, _ = await test_tutor()
+#     group = Group(name="TEST GROUP", tutor_id=tutor.id)
+#     test_db_session.add(group)
+#     test_db_session.commit(group)
 
-    tutor, _, _ = test_tutor
-    group = Group(name="TEST GROUP", tutor_id=tutor.id)
-    test_db_session.add(group)
-    test_db_session.commit(group)
+#     _, _, creds = await test_student()
+#     student = test_db_session.get(Student, creds.user_id)
 
-    student, _, _ = test_student
-    student.group_id = group.id
-
-    return group, tutor, student
+#     return group, tutor, student

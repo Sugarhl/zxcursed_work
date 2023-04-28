@@ -11,7 +11,8 @@ pytestmark = pytest.mark.anyio
 
 async def test_register_student(client, test_student_in):
     response = await client.post(
-        "/registration/register/student", json=test_student_in.dict())
+        "/registration/register/student", json=test_student_in().dict()
+    )
 
     assert response.status_code == 200
     assert "access_token" in response.json()
@@ -25,7 +26,8 @@ async def test_register_student(client, test_student_in):
 
 async def test_register_tutor(client, test_tutor_in):
     response = await client.post(
-        "/registration/register/tutor", json=test_tutor_in.dict())
+        "/registration/register/tutor", json=test_tutor_in().dict()
+    )
 
     assert response.status_code == 200
     assert "access_token" in response.json()
