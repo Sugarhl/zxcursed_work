@@ -14,26 +14,10 @@ from server.CRUD.group import (
 )
 from server.database import get_db
 from server.token import auth_by_token
-from server.utils import UserType, tutor_check
+from server.utils import UserType, group_check, group_check_access, tutor_access_check
 
 router = APIRouter()
 bearer = HTTPBearer()
-
-
-def group_check(group):
-    if not group:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Group does not exist",
-        )
-
-
-def group_check_access(group, tutor):
-    if group.tutor_id != tutor.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this group",
-        )
 
 
 @router.post("/create", status_code=status.HTTP_201_CREATED)
@@ -44,7 +28,7 @@ async def create_group_route(
 ):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
-        tutor_check(user_type=user_type)
+        tutor_access_check(user_type=user_type)
 
         group_id = await create_group(db=db, group=group, tutor_id=tutor.id)
         return {"group_id": group_id}
@@ -64,7 +48,7 @@ async def get_all_groups_route(
     try:
         _, user_type = await auth_by_token(db=db, token=auth.credentials)
 
-        tutor_check(user_type=user_type)
+        tutor_access_check(user_type=user_type)
         groups = await get_all_groups(db)
 
         return groups
@@ -83,7 +67,7 @@ async def get_all_tutor_groups_route(
 ):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
-        tutor_check(user_type=user_type)
+        tutor_access_check(user_type=user_type)
 
         groups = await get_all_groups_by_tutor_id(db, tutor.id)
 
@@ -124,7 +108,7 @@ async def update_group_route(
 ):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
-        tutor_check(user_type=user_type)
+        tutor_access_check(user_type=user_type)
 
         existing_group = await get_group(db, group_id)
 

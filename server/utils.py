@@ -26,9 +26,25 @@ async def verify_password(password: str, salt: str, hashed_password: str) -> boo
     return input_hashed_password == hashed_password
 
 
-def tutor_check(user_type: UserType):
+# Some checks
+def tutor_access_check(user_type: UserType):
     if user_type != UserType.TUTOR:
         raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only tutors are allowed"
+        )
+
+
+def group_check(group):
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Group does not exist",
+        )
+
+
+def group_check_access(group, tutor):
+    if group.tutor_id != tutor.id:
+        raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only tutors are allowed"
+            detail="You don't have access to this group",
         )

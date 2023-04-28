@@ -97,5 +97,6 @@ class LabOut(BaseModel):
 
 
 # variants
-class GenerateParams(BaseModel):
+class GenerateVariantsParams(BaseModel):
     lab_id: int
+    group_id: int

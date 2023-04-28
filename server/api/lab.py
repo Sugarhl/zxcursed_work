@@ -7,7 +7,7 @@ import server.schemas as schemas
 from server.CRUD.lab import create_lab, get_all_labs, get_all_labs_by_tutor_id
 from server.database import get_db
 from server.token import auth_by_token
-from server.utils import tutor_check
+from server.utils import tutor_access_check
 
 router = APIRouter()
 bearer = HTTPBearer()
@@ -22,7 +22,7 @@ async def create_lab_route(
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
 
-        tutor_check(user_type)
+        tutor_access_check(user_type)
 
         lab_id = await create_lab(db=db, lab=lab, tutor_id=tutor.id)
         return {"lab_id": lab_id}
@@ -38,7 +38,7 @@ async def get_all_tutor_labs_route(
 ):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
-        tutor_check(user_type)
+        tutor_access_check(user_type)
         labs = await get_all_labs_by_tutor_id(db, tutor.id)
 
         return labs
