@@ -16,36 +16,43 @@ bearer = HTTPBearer()
 
 
 @router.post("/upload_solution", status_code=status.HTTP_201_CREATED)
-async def upload_solution(solution: schemas.SolutionUpload, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def upload_solution(
+    solution: schemas.SolutionUpload,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         user_id, user_type = decode_access_token(auth.credentials)
-        print('AUTHORIZED')
+        print("AUTHORIZED")
 
         if user_type != "Student":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only students are allowed to upload solutions"
+                detail="Only students are allowed to upload solutions",
             )
 
-        solution_id = await create_solution(db, user_id, solution.lab_variant_id, solution.solution_file)
+        solution_id = await create_solution(
+            db, user_id, solution.lab_variant_id, solution.solution_file
+        )
         return {"solution_id": solution_id}
 
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
 @router.post("/create_lab_solution_comment", status_code=status.HTTP_201_CREATED)
-async def create_lab_solution_comment(comment: schemas.LabSolutionCommentCreate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def create_lab_solution_comment(
+    comment: schemas.LabSolutionCommentCreate,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         user_id, user_type = decode_access_token(auth.credentials)
 
-        comment_id = await create_comment(db=db,
-                                          comment=comment,
-                                          user_id=user_id,
-                                          user_type=user_type)
+        comment_id = await create_comment(
+            db=db, comment=comment, user_id=user_id, user_type=user_type
+        )
         return {"comment_id": comment_id}
 
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())

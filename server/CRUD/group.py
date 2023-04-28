@@ -5,10 +5,7 @@ from server.schemas import GroupCreate, GroupUpdate
 
 
 async def create_group(db: AsyncSession, group: GroupCreate, tutor_id: int) -> int:
-    group_obj = Group(
-        name=group.name,
-        tutor_id=tutor_id
-    )
+    group_obj = Group(name=group.name, tutor_id=tutor_id)
     db.add(group_obj)
     await db.commit()
     await db.refresh(group_obj)

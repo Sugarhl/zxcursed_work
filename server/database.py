@@ -1,9 +1,7 @@
-import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 import databases
-from server.models.base import Base
 
 from server.models.lab_variant import LabVariant
 from server.models.lab import Lab
@@ -22,7 +20,12 @@ async_engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 async_database = databases.Database(DATABASE_URL)
 
 session_factory = sessionmaker(
-    autocommit=False, autoflush=False, expire_on_commit=False, bind=async_engine, class_=AsyncSession)
+    autocommit=False,
+    autoflush=False,
+    expire_on_commit=False,
+    bind=async_engine,
+    class_=AsyncSession,
+)
 
 
 async def get_db():
@@ -45,7 +48,6 @@ tables = [
 
 async def create_tables():
     async with async_engine.begin() as conn:
-
         # Create tables without foreign key dependencies
         await conn.run_sync(User.__table__.create, checkfirst=True)
         await conn.run_sync(Tutor.__table__.create, checkfirst=True)
@@ -57,4 +59,7 @@ async def create_tables():
         await conn.run_sync(LabVariant.__table__.create, checkfirst=True)
         await conn.run_sync(LabSolution.__table__.create, checkfirst=True)
         await conn.run_sync(LabResult.__table__.create, checkfirst=True)
-        await conn.run_sync(LabSolutionComment.__table__.create, checkfirst=True)
+        await conn.run_sync(
+            LabSolutionComment.__table__.create,
+            checkfirst=True,
+        )

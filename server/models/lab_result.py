@@ -1,4 +1,9 @@
-from sqlalchemy import Column, Integer, LargeBinary, String, ForeignKey, CheckConstraint, DateTime
+from sqlalchemy import (
+    Column,
+    Integer,
+    ForeignKey,
+    DateTime,
+)
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
 
@@ -10,10 +15,12 @@ class LabResult(Base):
     __table_args__ = ({"schema": f"{SCHEMA}"},)
 
     id = Column(Integer, primary_key=True, index=True)
-    student_id = Column(Integer, ForeignKey(
-        f"{SCHEMA}.student.id", ondelete="CASCADE"), nullable=False)
-    lab_variant_id = Column(Integer, ForeignKey(
-        f"{SCHEMA}.lab_var.id", ondelete="CASCADE"), nullable=False)
+    student_id = Column(
+        Integer, ForeignKey(f"{SCHEMA}.student.id", ondelete="CASCADE"), nullable=False
+    )
+    lab_variant_id = Column(
+        Integer, ForeignKey(f"{SCHEMA}.lab_var.id", ondelete="CASCADE"), nullable=False
+    )
     score = Column(Integer)
     submission_date = Column(DateTime)
 

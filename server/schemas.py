@@ -23,9 +23,9 @@ class UserIn(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
 # groups
-
-
 class GroupCreate(BaseModel):
     name: str
 
@@ -73,7 +73,7 @@ class LabCreate(BaseModel):
     deadline: Optional[datetime] = None
     generator_type: GenType
 
-    @validator('date_start', 'deadline', pre=True)
+    @validator("date_start", "deadline", pre=True)
     def parse_datetime(cls, value):
         if isinstance(value, str):
             tz_aware_datetime = parser.isoparse(value)

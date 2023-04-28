@@ -12,7 +12,7 @@ async def create_lab(db: AsyncSession, lab: LabCreate, tutor_id: int) -> int:
         date_start=lab.date_start,
         deadline=lab.deadline,
         tutor_id=tutor_id,
-        generator_type=lab.generator_type
+        generator_type=lab.generator_type,
     )
     return await add_to_db(db=db, obj=lab_obj)
 

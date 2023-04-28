@@ -1,4 +1,3 @@
-import logging
 from fastapi import FastAPI
 from server.database import async_database, create_tables
 from server.api.login import router as login_router
@@ -22,9 +21,13 @@ async def startup():
 async def shutdown():
     await async_database.disconnect()
 
+
 app.include_router(login_router, prefix="/auth", tags=["Authentication"])
-app.include_router(registration_router,
-                   prefix="/registration", tags=["Registration"])
+app.include_router(
+    registration_router,
+    prefix="/registration",
+    tags=["Registration"],
+)
 app.include_router(solutions_router, prefix="/solutions", tags=["Solutions"])
 app.include_router(lab_router, prefix="/lab", tags=["Lab"])
 app.include_router(variants_router, prefix="/variatns", tags=["Variants"])

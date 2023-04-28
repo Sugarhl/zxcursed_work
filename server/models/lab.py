@@ -1,5 +1,4 @@
-
-from sqlalchemy import Column, Enum, ForeignKey, Integer, String, DateTime, select
+from sqlalchemy import Column, Enum, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
 from server.generation import types
@@ -14,8 +13,9 @@ class Lab(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     lab_name = Column(String(255), nullable=False)
-    tutor_id = Column(Integer, ForeignKey(
-        f"{SCHEMA}.tutor.id", ondelete="NO ACTION"), nullable=False)
+    tutor_id = Column(
+        Integer, ForeignKey(f"{SCHEMA}.tutor.id", ondelete="NO ACTION"), nullable=False
+    )
     date_start = Column(DateTime, nullable=True)
     deadline = Column(DateTime, nullable=True)
     description = Column(String)

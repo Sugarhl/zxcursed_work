@@ -26,9 +26,13 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
 
 
 @router.post("/token", response_model=schemas.Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
+):
     user = await authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect username or password")
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect username or password",
+        )
     return create_access_token(user.id, user.user_type)

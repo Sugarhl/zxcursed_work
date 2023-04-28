@@ -5,7 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from server.CRUD.student import get_student_by_id
 
 import server.schemas as schemas
-from server.CRUD.group import create_group, get_all_groups, get_all_groups_by_tutor_id, get_group, update_group
+from server.CRUD.group import (
+    create_group,
+    get_all_groups,
+    get_all_groups_by_tutor_id,
+    get_group,
+    update_group,
+)
 from server.database import get_db
 from server.token import auth_by_token
 from server.utils import UserType, tutor_check
@@ -16,20 +22,26 @@ bearer = HTTPBearer()
 
 def group_check(group):
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Group does not exist")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Group does not exist",
+        )
 
 
 def group_check_access(group, tutor):
     if group.tutor_id != tutor.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this group"
+            detail="You don't have access to this group",
         )
 
 
 @router.post("/create", status_code=status.HTTP_201_CREATED)
-async def create_group_route(group: schemas.GroupCreate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def create_group_route(
+    group: schemas.GroupCreate,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
         tutor_check(user_type=user_type)
@@ -39,13 +51,18 @@ async def create_group_route(group: schemas.GroupCreate, auth: HTTPAuthorization
 
     except ValidationError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.errors(),
+        )
 
 
 @router.get("/all", response_model=list[schemas.GroupOut])
-async def get_all_groups_route(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def get_all_groups_route(
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+        _, user_type = await auth_by_token(db=db, token=auth.credentials)
 
         tutor_check(user_type=user_type)
         groups = await get_all_groups(db)
@@ -54,11 +71,16 @@ async def get_all_groups_route(auth: HTTPAuthorizationCredentials = Depends(bear
 
     except ValidationError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.errors(),
+        )
 
 
 @router.get("/tutor/all", response_model=list[schemas.GroupOut])
-async def get_all_groups_route(auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def get_all_tutor_groups_route(
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
         tutor_check(user_type=user_type)
@@ -69,11 +91,17 @@ async def get_all_groups_route(auth: HTTPAuthorizationCredentials = Depends(bear
 
     except ValidationError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.errors(),
+        )
 
 
 @router.get("/get/{group_id}", response_model=schemas.GroupOut)
-async def get_group_route(group_id: int, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def get_group_route(
+    group_id: int,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         _, _ = await auth_by_token(db=db, token=auth.credentials)
         group = await get_group(db, group_id)
@@ -82,11 +110,18 @@ async def get_group_route(group_id: int, auth: HTTPAuthorizationCredentials = De
 
     except ValidationError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.errors(),
+        )
 
 
 @router.put("/update/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def update_group_route(group_id: int, group: schemas.GroupUpdate, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def update_group_route(
+    group_id: int,
+    group: schemas.GroupUpdate,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
         tutor_check(user_type=user_type)
@@ -100,12 +135,15 @@ async def update_group_route(group_id: int, group: schemas.GroupUpdate, auth: HT
         await update_group(db, group_id, group)
 
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
 @router.put("/set_student", status_code=status.HTTP_204_NO_CONTENT)
-async def set_student_group_route(params: schemas.SetStudentToGroup, auth: HTTPAuthorizationCredentials = Depends(bearer), db: AsyncSession = Depends(get_db)):
+async def set_student_group_route(
+    params: schemas.SetStudentToGroup,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
     try:
         user, user_type = await auth_by_token(db=db, token=auth.credentials)
 
@@ -116,18 +154,18 @@ async def set_student_group_route(params: schemas.SetStudentToGroup, auth: HTTPA
 
         if not student:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Student does not exist")
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Student does not exist"
+            )
 
         if user_type == UserType.STUDENT:
             if student.id != user.id:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Only student and tutor can change his group"
+                    detail="Only student and tutor can change his group",
                 )
 
         student.group_id = group.id
         await db.commit()
 
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())

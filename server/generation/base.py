@@ -10,7 +10,6 @@ class NotebookGenerator:
     def generate_notebooks(self, n):
         self.create_directory()
         self.clear_directory()
-        
 
     def create_directory(self):
         if not os.path.exists(self.directory):

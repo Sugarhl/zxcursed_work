@@ -12,19 +12,19 @@ from server.CRUD.utils import add_to_db
 # Create statements
 
 
-async def create_user(db: AsyncSession,
-                      user_in: schemas.UserIn,
-                      user_type: UserType,
-                      user_id: int) -> int:
+async def create_user(
+    db: AsyncSession, user_in: schemas.UserIn, user_type: UserType, user_id: int
+) -> int:
     salt = generate_salt()
-    hashed_password = generate_salted_password(
-        salt=salt, password=user_in.password)
+    hashed_password = generate_salted_password(salt=salt, password=user_in.password)
 
-    user = User(user_id=user_id,
-                user_type=user_type,
-                username=user_in.username,
-                password=hashed_password,
-                salt=salt)
+    user = User(
+        user_id=user_id,
+        user_type=user_type,
+        username=user_in.username,
+        password=hashed_password,
+        salt=salt,
+    )
 
     return await add_to_db(user, db=db)
 
