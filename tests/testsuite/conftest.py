@@ -231,14 +231,16 @@ async def test_tutor(test_tutor_in, test_db_session):
     return do_test_tutor
 
 
-# @pytest.fixture
-# async def test_group(test_tutor, test_student, test_db_session):
-#     tutor, _, _ = await test_tutor()
-#     group = Group(name="TEST GROUP", tutor_id=tutor.id)
-#     test_db_session.add(group)
-#     test_db_session.commit(group)
+@pytest.fixture
+async def test_group(test_tutor, test_student, test_db_session):
+    async def do_test_group():
+        tutor, _ = await test_tutor()
+        group = Group(name="TEST GROUP", tutor_id=tutor.id)
+        test_db_session.add(group)
+        test_db_session.commit(group)
 
-#     _, _, creds = await test_student()
-#     student = test_db_session.get(Student, creds.user_id)
+        student, _ = await test_student()
 
-#     return group, tutor, student
+        return group, tutor, student
+
+    return do_test_group

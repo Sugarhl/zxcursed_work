@@ -1,4 +1,3 @@
-from server.models.student import Student
 from server.schemas import GroupCreate, GroupUpdate, SetStudentToGroup
 from httpx import AsyncClient
 import pytest
@@ -242,3 +241,35 @@ async def test_set_student_incorrect_student(
     )
 
     assert response.status_code == 400
+
+
+@pytest.mark.anyio
+async def test_set_student_by_another(
+    client: AsyncClient,
+    test_student,
+    test_tutor,
+):
+    tutor, token = await test_tutor()
+
+    group_create = GroupCreate(name="Test Group", tutor_id=tutor.id)
+
+    response = await client.post(
+        "/group/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(group_create),
+    )
+
+    group_id = response.json()["group_id"]
+
+    student, _ = await test_student()
+    anoter_student, token = await test_student()
+
+    set_student_to_group = SetStudentToGroup(student_id=student.id, group_id=group_id)
+
+    response = await client.put(
+        "/group/set_student",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(set_student_to_group),
+    )
+
+    assert response.status_code == 403
