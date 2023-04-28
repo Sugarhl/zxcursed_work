@@ -5,8 +5,8 @@ pytestmark = pytest.mark.anyio
 
 
 @pytest.mark.anyio
-async def test_login_for_access_token(client: AsyncClient, test_student):
-    student, _, _ = await test_student()
+async def test_login_for_access_token(client: AsyncClient, test_student_creds):
+    student, token, _ = await test_student_creds()
 
     headers = {
         "accept": "application/json",
@@ -23,6 +23,7 @@ async def test_login_for_access_token(client: AsyncClient, test_student):
     assert "access_token" in response.json()
     assert "token_type" in response.json()
     assert response.json()["token_type"] == "bearer"
+    assert response.json()["access_token"] == token
 
 
 @pytest.mark.anyio

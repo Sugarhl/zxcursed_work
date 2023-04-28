@@ -12,7 +12,7 @@ pytestmark = pytest.mark.anyio
 
 @pytest.mark.anyio
 async def test_lab_create(client: AsyncClient, test_tutor, test_db_session):
-    tutor, token, creds = await test_tutor()
+    tutor, token = await test_tutor()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
@@ -38,12 +38,12 @@ async def test_lab_create(client: AsyncClient, test_tutor, test_db_session):
     assert lab_db.description == lab_create.description
     assert lab_db.date_start == lab_create.date_start
     assert lab_db.deadline == lab_create.deadline
-    assert lab_db.tutor_id == creds.user_id
+    assert lab_db.tutor_id == tutor.id
 
 
 @pytest.mark.anyio
 async def test_lab_create_negative(client: AsyncClient, test_student, test_tutor):
-    _, token, _ = await test_student()
+    _, token = await test_student()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
@@ -61,7 +61,7 @@ async def test_lab_create_negative(client: AsyncClient, test_student, test_tutor
 
     assert response.status_code == 403
 
-    tutor, token, creds = await test_tutor()
+    _, token = await test_tutor()
 
     json_data = jsonable_encoder(lab_create)
     json_data["generator_type"] = "SMTH"

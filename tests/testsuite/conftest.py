@@ -116,7 +116,46 @@ def test_db_session():
 
 @pytest.fixture
 async def test_student(test_student_in, test_db_session):
-    async def create_test_student():
+    async def do_test_student():
+        student = test_student_in()
+        new_student = Student(
+            first_name=student.first_name,
+            last_name=student.last_name,
+            email=student.email,
+        )
+
+        # Add the new student to the session
+        test_db_session.add(new_student)
+        test_db_session.commit()
+
+        student_id = new_student.id
+
+        # Create a new user
+        salt = generate_salt()
+        salted_password = generate_salted_password(salt, student.password)
+
+        user = User(
+            username=student.username,
+            salt=salt,
+            password=salted_password,
+            user_type=UserType.STUDENT,
+            user_id=student_id,
+        )
+
+        # Add the new user to the session
+        test_db_session.add(user)
+        test_db_session.commit()
+
+        token = create_access_token(user_id=user.id, user_type=user.user_type)
+
+        return new_student, token.access_token
+
+    return do_test_student
+
+
+@pytest.fixture
+async def test_student_creds(test_student_in, test_db_session):
+    async def do_test_student_creds():
         student = test_student_in()
         new_student = Student(
             first_name=student.first_name,
@@ -150,12 +189,12 @@ async def test_student(test_student_in, test_db_session):
 
         return student, token.access_token, user
 
-    return create_test_student
+    return do_test_student_creds
 
 
 @pytest.fixture
 async def test_tutor(test_tutor_in, test_db_session):
-    async def create_test_tutor():
+    async def do_test_tutor():
         tutor = test_tutor_in()
         new_tutor = Tutor(
             first_name=tutor.first_name,
@@ -187,9 +226,9 @@ async def test_tutor(test_tutor_in, test_db_session):
 
         token = create_access_token(user_id=user.id, user_type=user.user_type)
 
-        return tutor, token.access_token, user
+        return new_tutor, token.access_token
 
-    return create_test_tutor
+    return do_test_tutor
 
 
 # @pytest.fixture
