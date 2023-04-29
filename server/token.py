@@ -4,9 +4,9 @@ import uuid
 
 import jwt
 from fastapi import HTTPException, status
-from server.CRUD.student import get_student_by_id
-from server.CRUD.tutor import get_tutor_by_id
-from server.CRUD.user import get_user_by_id
+from server.CRUD.student import get_student_checked
+from server.CRUD.tutor import get_tutor_checked
+from server.CRUD.user import get_user_checked
 from jwt import ExpiredSignatureError, InvalidTokenError
 from server.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from server.models.user import User
@@ -14,6 +14,8 @@ from server.schemas import Token
 from server.utils import UserType
 
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from server.validation.checks import tutor_check, user_check
 
 
 def create_access_token(user_id: uuid.UUID, user_type: UserType) -> Token:
@@ -70,21 +72,14 @@ def decode_access_token(token: str) -> Tuple[int, UserType]:
 
 async def auth_by_token(db: AsyncSession, token: str) -> User:
     user_id, user_type = decode_access_token(token)
-
-    user = await get_user_by_id(db=db, user_id=user_id)
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Non - existent credentials",
-        )
+    user = await get_user_checked(db=db, id=user_id)
 
     if user_type == UserType.STUDENT:
-        student = await get_student_by_id(db=db, user_id=user.user_id)
+        student = await get_student_checked(db=db, id=user.user_id)
         return student, user_type
 
     elif user_type == UserType.TUTOR:
-        tutor = await get_tutor_by_id(db=db, user_id=user.user_id)
+        tutor = await get_tutor_checked(db=db, id=user.user_id)
         return tutor, user_type
 
     return user, user_type

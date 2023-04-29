@@ -240,7 +240,7 @@ async def test_set_student_incorrect_student(
         json=jsonable_encoder(set_student_to_group),
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 @pytest.mark.anyio

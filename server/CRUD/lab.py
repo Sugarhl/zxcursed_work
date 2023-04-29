@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from server.models.lab import Lab
 from server.schemas import LabCreate
 from server.CRUD.utils import add_to_db
+from server.validation.checks import lab_check
 
 
 async def create_lab(db: AsyncSession, lab: LabCreate, tutor_id: int) -> int:
@@ -19,6 +20,12 @@ async def create_lab(db: AsyncSession, lab: LabCreate, tutor_id: int) -> int:
 
 async def get_lab(db: AsyncSession, lab_id: int) -> Lab:
     return await db.get(Lab, lab_id)
+
+
+async def get_lab_checked(db: AsyncSession, lab_id: int) -> Lab:
+    lab = await get_lab(db=db, labid=lab_id)
+    lab_check(lab)
+    return lab
 
 
 async def get_all_labs_by_tutor_id(db: AsyncSession, tutor_id: int) -> list[Lab]:

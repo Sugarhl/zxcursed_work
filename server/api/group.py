@@ -2,19 +2,23 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
-from server.CRUD.student import get_student_by_id
+from server.CRUD.student import get_student_checked
 
 import server.schemas as schemas
 from server.CRUD.group import (
     create_group,
     get_all_groups,
     get_all_groups_by_tutor_id,
-    get_group,
+    get_group_checked,
     update_group,
 )
 from server.database import get_db
 from server.token import auth_by_token
-from server.utils import UserType, group_check, group_check_access, tutor_access_check
+from server.validation.checks import (
+    UserType,
+    group_check_access,
+    tutor_access_check,
+)
 
 router = APIRouter()
 bearer = HTTPBearer()
@@ -88,9 +92,7 @@ async def get_group_route(
 ):
     try:
         _, _ = await auth_by_token(db=db, token=auth.credentials)
-        group = await get_group(db, group_id)
-        group_check(group)
-        return group
+        return await get_group_checked(db, group_id)
 
     except ValidationError as e:
         raise HTTPException(
@@ -110,9 +112,7 @@ async def update_group_route(
         tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
         tutor_access_check(user_type=user_type)
 
-        existing_group = await get_group(db, group_id)
-
-        group_check(existing_group)
+        existing_group = await get_group_checked(db, group_id)
 
         group_check_access(existing_group, tutor)
 
@@ -131,15 +131,9 @@ async def set_student_group_route(
     try:
         user, user_type = await auth_by_token(db=db, token=auth.credentials)
 
-        group = await get_group(db, params.group_id)
-        group_check(group)
+        group = await get_group_checked(db, params.group_id)
 
-        student = await get_student_by_id(db, params.student_id)
-
-        if not student:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Student does not exist"
-            )
+        student = await get_student_checked(db, params.student_id)
 
         if user_type == UserType.STUDENT:
             if student.id != user.id:

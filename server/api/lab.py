@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
-from server.CRUD.group import get_group
+from server.CRUD.group import get_group, get_group_checked
 
 import server.schemas as schemas
 from server.CRUD.lab import create_lab, get_all_labs, get_all_labs_by_tutor_id
 from server.database import get_db
 from server.token import auth_by_token
-from server.utils import group_check, tutor_access_check
+from server.validation.checks import tutor_access_check
 
 router = APIRouter()
 bearer = HTTPBearer()
@@ -25,8 +25,7 @@ async def create_lab_route(
 
         tutor_access_check(user_type)
 
-        group = await get_group(db, lab.group_id)
-        group_check(group)
+        await get_group_checked(db, lab.group_id)
 
         lab_id = await create_lab(db=db, lab=lab, tutor_id=tutor.id)
         return {"lab_id": lab_id}

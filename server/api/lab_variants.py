@@ -1,4 +1,4 @@
-from server.CRUD.lab import get_lab
+from server.CRUD.lab import get_lab, get_lab_checked
 import server.schemas as schemas
 
 from fastapi import APIRouter, Depends, status
@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.database import get_db
 from server.token import auth_by_token
-from server.utils import tutor_access_check
+from server.validation.checks import tutor_access_check
 
 router = APIRouter()
 bearer = HTTPBearer()
@@ -24,7 +24,4 @@ async def genrate_for_group(
 
     tutor_access_check(user_type)
 
-    lab = await get_lab(db, params.lab_id)
-    
-    
-    lab = await get_lab(db, params.lab_id)
+    lab = await get_lab_checked(db, params.lab_id)
