@@ -23,7 +23,7 @@ async def get_lab(db: AsyncSession, lab_id: int) -> Lab:
 
 
 async def get_lab_checked(db: AsyncSession, lab_id: int) -> Lab:
-    lab = await get_lab(db=db, labid=lab_id)
+    lab = await get_lab(db=db, lab_id=lab_id)
     lab_check(lab)
     return lab
 

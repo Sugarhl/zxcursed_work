@@ -122,7 +122,7 @@ async def update_group_route(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.put("/set_student", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/set_student", status_code=status.HTTP_200_OK)
 async def set_student_group_route(
     params: schemas.SetStudentToGroup,
     auth: HTTPAuthorizationCredentials = Depends(bearer),

@@ -7,7 +7,7 @@ import dateutil.parser as parser
 import pytz
 
 
-from server.generation.types import GenType
+from server.generation.generate import GenType
 
 # auth
 

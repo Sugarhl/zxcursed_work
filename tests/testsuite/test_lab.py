@@ -2,7 +2,7 @@ from datetime import datetime
 from httpx import AsyncClient
 import pytest
 
-from server.generation.types import GenType
+from server.generation.generate import GenType
 from server.models.lab import Lab
 from server.schemas import LabCreate
 from fastapi.encoders import jsonable_encoder

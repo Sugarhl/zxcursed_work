@@ -44,6 +44,6 @@ def create_jupiter(path_to_src: str, path_to_out: str):
         nbformat.write(notebook, f)
 
 
-create_jupiter(
-    "server/generation/samples/sample_work.py", "server/generation/samples/sample.ipynb"
-)
+# create_jupiter(
+#     "server/generation/samples/sample_work.py", "server/generation/samples/sample.ipynb"
+# )

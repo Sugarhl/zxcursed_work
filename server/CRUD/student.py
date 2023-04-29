@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +15,12 @@ async def create_student(db: AsyncSession, student: schemas.UserIn) -> int:
         email=student.email,
     )
     return await add_to_db(db_student, db=db)
+
+
+async def get_students_by_group(db: AsyncSession, group_id: int) -> List[Student]:
+    stmt = select(Student).where(Student.group_id == group_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
 
 async def get_student_by_id(db: AsyncSession, user_id: int):

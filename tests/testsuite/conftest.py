@@ -3,7 +3,7 @@ import subprocess
 import pytest
 
 from httpx import AsyncClient
-from server.generation.types import GenType
+from server.generation.generate import GenType
 from server.main import app
 
 from server.models.base import Base
