@@ -1,7 +1,6 @@
 import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from server.models import user
 from server.models.student import Student
 from server.models.tutor import Tutor
 from server.models.user import User
@@ -19,7 +18,7 @@ async def create_user(
     salt = generate_salt()
     hashed_password = generate_salted_password(salt=salt, password=user_in.password)
 
-    user_db = User(
+    user = User(
         user_id=user_id,
         user_type=user_type,
         username=user_in.username,
@@ -27,7 +26,7 @@ async def create_user(
         salt=salt,
     )
 
-    return await add_to_db(user_db, db=db)
+    return await add_to_db(user, db=db)
 
 
 # Get statements
@@ -53,6 +52,6 @@ async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID):
 
 
 async def get_user_checked(db: AsyncSession, id: uuid.UUID):
-    user_db = await db.get(User, id)
-    user_check(user_db)
-    return user_db
+    user = await db.get(User, id)
+    user_check(user)
+    return user

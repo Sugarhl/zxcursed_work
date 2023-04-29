@@ -15,8 +15,6 @@ from server.utils import UserType
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from server.validation.checks import tutor_check, user_check
-
 
 def create_access_token(user_id: uuid.UUID, user_type: UserType) -> Token:
     expire = datetime.datetime.utcnow() + datetime.timedelta(

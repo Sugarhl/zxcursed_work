@@ -3,6 +3,7 @@ import hashlib
 
 import bcrypt
 
+
 class UserType(Enum):
     STUDENT = "student"
     TUTOR = "tutor"
@@ -22,5 +23,3 @@ def generate_salted_password(salt, password):
 async def verify_password(password: str, salt: str, hashed_password: str) -> bool:
     input_hashed_password = generate_salted_password(salt, password)
     return input_hashed_password == hashed_password
-
-

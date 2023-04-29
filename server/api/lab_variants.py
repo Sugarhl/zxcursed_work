@@ -1,4 +1,4 @@
-from server.CRUD.lab import get_lab, get_lab_checked
+from server.CRUD.lab import get_lab_checked
 import server.schemas as schemas
 
 from fastapi import APIRouter, Depends, status

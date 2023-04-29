@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
-from server.CRUD.group import get_group, get_group_checked
+from server.CRUD.group import get_group_checked
 
 import server.schemas as schemas
 from server.CRUD.lab import create_lab, get_all_labs, get_all_labs_by_tutor_id

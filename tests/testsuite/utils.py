@@ -1,11 +1,15 @@
+import os
 import random
 import string
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 
+load_dotenv(dotenv_path=".env.test")
+
 # Set up the testing database URL
-TEST_DATABASE_URL = "postgresql://user:vikisah01@rc1b-8aubff9hb0epodpz.mdb.yandexcloud.net:6432/testing_tasks_manager"
+TEST_DATABASE_URL = os.getenv("SYNC_DATABASE_URL", "TESTING_DB")
 
 # Set up the testing engine and session factory
 test_engine = create_engine(TEST_DATABASE_URL)
