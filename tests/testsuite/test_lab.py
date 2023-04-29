@@ -11,14 +11,22 @@ pytestmark = pytest.mark.anyio
 
 
 @pytest.mark.anyio
-async def test_lab_create(client: AsyncClient, test_tutor, test_db_session):
-    tutor, token = await test_tutor()
+async def test_lab_create(
+    client: AsyncClient,
+    test_tutor,
+    test_group,
+    test_db_session,
+):
+    tutor, token = test_tutor()
+
+    group, _, _ = test_group()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
         description="A test lab",
         date_start=datetime.now(),
         deadline=datetime.now(),
+        group_id=group.id,
         generator_type=GenType.BASE,
     )
 
@@ -42,14 +50,16 @@ async def test_lab_create(client: AsyncClient, test_tutor, test_db_session):
 
 
 @pytest.mark.anyio
-async def test_lab_create_negative(client: AsyncClient, test_student, test_tutor):
-    _, token = await test_student()
+async def test_lab_create_student_access(client: AsyncClient, test_student, test_group):
+    _, token = test_student()
+    group, _, _ = test_group()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
         description="A test lab",
         date_start=datetime.now(),
         deadline=datetime.now(),
+        group_id=group.id,
         generator_type=GenType.BASE,
     )
 
@@ -61,13 +71,61 @@ async def test_lab_create_negative(client: AsyncClient, test_student, test_tutor
 
     assert response.status_code == 403
 
-    _, token = await test_tutor()
 
-    json_data = jsonable_encoder(lab_create)
-    json_data["generator_type"] = "SMTH"
+@pytest.mark.anyio
+async def test_lab_create_incorrect_input(client: AsyncClient, test_group, test_tutor):
+    _, token = test_tutor()
+
+    group, _, _ = test_group()
+
+    lab_create = LabCreate(
+        lab_name="Test Lab",
+        description="A test lab",
+        date_start=datetime.now(),
+        deadline=datetime.now(),
+        group_id=group.id,
+        generator_type=GenType.BASE,
+    )
+    raw_data = jsonable_encoder(lab_create)
+
+    raw_data["generator_type"] = "SMTH"
 
     response = await client.post(
-        "lab/create", headers={"Authorization": f"Bearer {token}"}, json=json_data
+        "lab/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=raw_data,
     )
 
     assert response.status_code == 422
+
+    raw_data["generator_type"] = GenType.BASE.value
+    raw_data["deadline"] = "SMTH_DATE"
+
+    response = await client.post(
+        "lab/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=raw_data,
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_lab_create_non_exist_group(client: AsyncClient, test_group, test_tutor):
+    _, token = test_tutor()
+    lab_create = LabCreate(
+        lab_name="Test Lab",
+        description="A test lab",
+        date_start=datetime.now(),
+        deadline=datetime.now(),
+        group_id=123,
+        generator_type=GenType.BASE,
+    )
+
+    response = await client.post(
+        "lab/create",
+        headers={"Authorization": f"Bearer {token}"},
+        json=jsonable_encoder(lab_create),
+    )
+
+    assert response.status_code == 404

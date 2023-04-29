@@ -6,7 +6,7 @@ pytestmark = pytest.mark.anyio
 
 @pytest.mark.anyio
 async def test_login_for_access_token(client: AsyncClient, test_student_creds):
-    student, token, _ = await test_student_creds()
+    student, token, _ = test_student_creds()
 
     headers = {
         "accept": "application/json",

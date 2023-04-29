@@ -18,3 +18,4 @@ class Group(Base):
 
     tutor = relationship("Tutor", back_populates="groups")
     students = relationship("Student", backref="group")
+    labs = relationship("Lab", back_populates="group")

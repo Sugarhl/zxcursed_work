@@ -71,6 +71,7 @@ class LabCreate(BaseModel):
     description: str = None
     date_start: Optional[datetime] = None
     deadline: Optional[datetime] = None
+    group_id: int
     generator_type: GenType
 
     @validator("date_start", "deadline", pre=True)

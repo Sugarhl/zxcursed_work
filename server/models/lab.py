@@ -20,10 +20,10 @@ class Lab(Base):
     deadline = Column(DateTime, nullable=True)
     description = Column(String)
     generator_type = Column(Enum(types.GenType), nullable=False, index=True)
-    # group_id = Column(Integer, ForeignKey(
-    #     f"{SCHEMA}.group.id", ondelete="CASCADE"), nullable=True)
+    group_id = Column(Integer, ForeignKey(
+        f"{SCHEMA}.group.id", ondelete="CASCADE"), nullable=True)
 
     tutor = relationship("Tutor", back_populates="labs")
     variants = relationship("LabVariant", back_populates="lab")
 
-    # group = relationship("Group", back_populates="labs")
+    group = relationship("Group", back_populates="labs")

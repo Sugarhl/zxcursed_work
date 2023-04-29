@@ -1,12 +1,15 @@
+from datetime import datetime
 import subprocess
 import pytest
 
 from httpx import AsyncClient
+from server.generation.types import GenType
 from server.main import app
 
 from server.models.base import Base
 from server.database import async_engine
 from server.models.group import Group
+from server.models.lab import Lab
 from server.models.tutor import Tutor
 from server.models.user import User
 from server.token import create_access_token
@@ -115,8 +118,8 @@ def test_db_session():
 
 
 @pytest.fixture
-async def test_student(test_student_in, test_db_session):
-    async def do_test_student():
+def test_student(test_student_in, test_db_session):
+    def do_test_student():
         student = test_student_in()
         new_student = Student(
             first_name=student.first_name,
@@ -154,8 +157,8 @@ async def test_student(test_student_in, test_db_session):
 
 
 @pytest.fixture
-async def test_student_creds(test_student_in, test_db_session):
-    async def do_test_student_creds():
+def test_student_creds(test_student_in, test_db_session):
+    def do_test_student_creds():
         student = test_student_in()
         new_student = Student(
             first_name=student.first_name,
@@ -193,8 +196,8 @@ async def test_student_creds(test_student_in, test_db_session):
 
 
 @pytest.fixture
-async def test_tutor(test_tutor_in, test_db_session):
-    async def do_test_tutor():
+def test_tutor(test_tutor_in, test_db_session):
+    def do_test_tutor():
         tutor = test_tutor_in()
         new_tutor = Tutor(
             first_name=tutor.first_name,
@@ -232,15 +235,34 @@ async def test_tutor(test_tutor_in, test_db_session):
 
 
 @pytest.fixture
-async def test_group(test_tutor, test_student, test_db_session):
-    async def do_test_group():
-        tutor, _ = await test_tutor()
+def test_group(test_tutor, test_student, test_db_session):
+    def do_test_group():
+        tutor, _ = test_tutor()
         group = Group(name="TEST GROUP", tutor_id=tutor.id)
         test_db_session.add(group)
-        test_db_session.commit(group)
+        test_db_session.commit()
 
-        student, _ = await test_student()
+        student, _ = test_student()
 
         return group, tutor, student
 
     return do_test_group
+
+
+def test_lab(test_db_session):
+    def do_test_lab():
+        unique_str = generate_random_string()
+
+        lab = Lab(
+            lab_name=f"Test Lab {unique_str}",
+            description=f"A test lab number {unique_str}",
+            date_start=datetime.now(),
+            deadline=datetime.now(),
+            generator_type=GenType.BASE,
+        )
+        test_db_session.add(lab)
+        test_db_session.commit()
+
+        return lab
+
+    return do_test_lab
