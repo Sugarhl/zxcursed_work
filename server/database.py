@@ -6,7 +6,6 @@ import databases
 from server.models.lab_variant import LabVariant
 from server.models.lab import Lab
 from server.models.lab_solution import LabSolution
-from server.models.lab_result import LabResult
 from server.models.lab_solution_comment import LabSolutionComment
 from server.models.student import Student
 from server.models.tutor import Tutor
@@ -37,7 +36,6 @@ tables = [
     Lab,
     LabVariant,
     LabSolution,
-    LabResult,
     LabSolutionComment,
     Student,
     Tutor,
@@ -58,7 +56,6 @@ async def create_tables():
         # Create tables with foreign key dependencies
         await conn.run_sync(LabVariant.__table__.create, checkfirst=True)
         await conn.run_sync(LabSolution.__table__.create, checkfirst=True)
-        await conn.run_sync(LabResult.__table__.create, checkfirst=True)
         await conn.run_sync(
             LabSolutionComment.__table__.create,
             checkfirst=True,

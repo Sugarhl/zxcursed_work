@@ -19,5 +19,4 @@ class Student(Base):
     )
 
     solutions = relationship("LabSolution", back_populates="student")
-    results = relationship("LabResult", back_populates="student")
     # group = relationship("Group", back_populates="students")
