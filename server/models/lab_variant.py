@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, LargeBinary, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
@@ -14,9 +14,22 @@ class LabVariant(Base):
     lab_id = Column(
         Integer, ForeignKey(f"{SCHEMA}.lab.id", ondelete="CASCADE"), nullable=False
     )
+
+    student_id = Column(
+        Integer,
+        ForeignKey(f"{SCHEMA}.student.id", ondelete="NO ACTION"),
+        nullable=False,
+    )
+
+    tutor_for_check_id = Column(
+        Integer, ForeignKey(f"{SCHEMA}.tutor.id", ondelete="NO ACTION"), nullable=True
+    )
+
     variant_number = Column(Integer, nullable=False)
     variant_filename = Column(String)
-    file_data = Column(LargeBinary)
+    file_key = Column(String)
 
+    student = relationship("Student", back_populates="variants")
+    tutor = relationship("Tutor", back_populates="variants_for_check")
     lab = relationship("Lab", back_populates="variants")
     solutions = relationship("LabSolution", back_populates="variant")

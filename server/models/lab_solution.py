@@ -19,17 +19,11 @@ class LabSolution(Base):
     lab_variant_id = Column(
         Integer, ForeignKey(f"{SCHEMA}.lab_var.id", ondelete="CASCADE"), nullable=False
     )
-    student_id = Column(
-        Integer, ForeignKey(f"{SCHEMA}.student.id", ondelete="CASCADE"), nullable=False
-    )
-    tutor_id = Column(
-        Integer, ForeignKey(f"{SCHEMA}.tutor.id", ondelete="NO ACTION"), nullable=False
-    )
+
     solution_filename = Column(String)
     file_data = Column(LargeBinary)
-    mark = Column(Integer)
+    auto_mark = Column(Integer)
+    tutor_mark = Column(Integer)
 
     variant = relationship("LabVariant", back_populates="solutions")
-    student = relationship("Student", back_populates="solutions")
-    tutor = relationship("Tutor", back_populates="solutions")
     comments = relationship("LabSolutionComment", back_populates="solution")

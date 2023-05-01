@@ -18,5 +18,4 @@ class Student(Base):
         Integer, ForeignKey(f"{SCHEMA}.group.id", ondelete="NO ACTION"), nullable=True
     )
 
-    solutions = relationship("LabSolution", back_populates="student")
-    # group = relationship("Group", back_populates="students")
+    variants = relationship("LabVariant", back_populates="student")

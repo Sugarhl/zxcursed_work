@@ -15,6 +15,5 @@ class Tutor(Base):
     email = Column(String(255), nullable=False, unique=True)
 
     labs = relationship("Lab", back_populates="tutor")
-    solutions = relationship("LabSolution", back_populates="tutor")
-
+    variants_for_check = relationship("LabVariant", back_populates="tutor")
     groups = relationship("Group", back_populates="tutor")
