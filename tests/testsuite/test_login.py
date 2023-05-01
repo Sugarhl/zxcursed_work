@@ -34,7 +34,7 @@ async def test_login_not_exists(client: AsyncClient):
     }
     data = {
         "username": "not_exists",
-        "password": "not_exists}",
+        "password": "not_exists",
     }
 
     response = await client.post("/auth/token", headers=headers, data=data)

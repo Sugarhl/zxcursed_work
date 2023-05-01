@@ -42,14 +42,14 @@ def decode_access_token(token: str) -> Tuple[int, UserType]:
                 detail="Invalid token",
             )
 
-        # Check if the token has expired
-        now = datetime.datetime.utcnow()
-        expiration_datetime = datetime.datetime.fromtimestamp(payload["exp"])
-        if now >= expiration_datetime:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token has expired",
-            )
+        # # Check if the token has expired
+        # now = datetime.datetime.utcnow()
+        # expiration_datetime = datetime.datetime.fromtimestamp(payload["exp"])
+        # if now >= expiration_datetime:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_401_UNAUTHORIZED,
+        #         detail="Token has expired+",
+        #     )
 
         return user_id, user_type
     except ExpiredSignatureError:

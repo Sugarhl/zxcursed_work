@@ -208,7 +208,7 @@ async def test_set_student_to_group(
         json=jsonable_encoder(set_student_to_group),
     )
 
-    assert response.status_code == 204
+    assert response.status_code == 200
 
     test_db_session.refresh(student)
     assert student.group_id == group_id

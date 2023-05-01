@@ -1,7 +1,10 @@
+from typing import List
 from server.CRUD.group import get_group_checked
 from server.CRUD.lab import get_lab_checked
 from server.CRUD.student import get_students_by_group
+from server.generation.base import Variant
 from server.generation.generate import generate_for_group
+from server.models.student import Student
 import server.schemas as schemas
 
 from fastapi import APIRouter, Depends, status
@@ -15,6 +18,11 @@ from server.validation.checks import tutor_access_check
 
 router = APIRouter()
 bearer = HTTPBearer()
+
+
+def assign_variants(variants: List[Variant], students: List[Student]):
+    for varinat in variants:
+        pass
 
 
 @router.post(
@@ -36,6 +44,6 @@ async def genrate_for_group_route(
     group = await get_group_checked(db, params.group_id)
     students = await get_students_by_group(db, params.group_id)
 
-    variant_paths = generate_for_group(lab=lab, group=group, students=students)
+    variants = await generate_for_group(lab=lab, group=group, students=students)
 
-    return variant_paths
+    return variants

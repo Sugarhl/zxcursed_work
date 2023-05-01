@@ -7,7 +7,7 @@ CODE = "CODE"
 MARKDOWN = "MD"
 
 
-def create_jupiter(path_to_src: str, path_to_out: str):
+def create_jupiter(path_to_src: str):
     # Read the input file
     with open(path_to_src, "r") as f:
         file_contents = f.read()
@@ -40,10 +40,4 @@ def create_jupiter(path_to_src: str, path_to_out: str):
 
         notebook.cells.append(cell_obj)
 
-    with open(path_to_out, "w") as f:
-        nbformat.write(notebook, f)
-
-
-# create_jupiter(
-#     "server/generation/samples/sample_work.py", "server/generation/samples/sample.ipynb"
-# )
+    return notebook

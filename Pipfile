@@ -31,9 +31,12 @@ flake8 = "*"
 jupyterlab = "*"
 pytz = "*"
 black = "*"
+python-rocksdb = "*"
 
 [requires]
 python_version = "3.10"
 
 [dev-packages]
 autopep8 = "*"
+setuptools = "*"
+wheel = "*"

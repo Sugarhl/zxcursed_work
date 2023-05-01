@@ -2,7 +2,7 @@ import os
 from typing import List
 
 
-from server.generation.base import GenType, NotebookGenerator
+from server.generation.base import GenType, NotebookGenerator, Variant
 from server.models.lab import Lab
 from server.models.group import Group
 from server.models.student import Student
@@ -21,7 +21,9 @@ def get_generator_by_type(type: GenType, prefix: str):
         return NotebookGenerator(prefix=prefix, directory=BASE_DIR + prefix)
 
 
-def generate_for_group(lab: Lab, group: Group, students: List[Student]) -> List[str]:
+async def generate_for_group(
+    lab: Lab, group: Group, students: List[Student]
+) -> List[Variant]:
     """
     Generates variants for group by lab and store it in local directory
 
@@ -34,9 +36,10 @@ def generate_for_group(lab: Lab, group: Group, students: List[Student]) -> List[
     """
 
     prefix = f"L{lab.id}_GR{group.id}"
+    print(prefix)
 
     generator = get_generator_by_type(type=lab.generator_type, prefix=prefix)
 
-    variant_paths = generator.generate_notebooks(n=len(students))
+    variants = await generator.generate_notebooks(n=len(students))
 
-    return variant_paths
+    return variants
