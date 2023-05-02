@@ -1,5 +1,4 @@
 from typing import List
-from uuid import uuid4
 from server.CRUD.group import get_group_checked
 from server.CRUD.lab import get_lab_checked
 from server.CRUD.lab_variant import create_lab_variant_from_dict

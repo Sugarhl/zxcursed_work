@@ -19,7 +19,6 @@ from server.utils import UserType, generate_salt, generate_salted_password
 from server.schemas import UserIn
 from server.models.student import Student
 import server.config as config
-from server.validation.checks import tutor_check
 from tests.testsuite.utils import generate_random_string, test_session_factory
 
 
