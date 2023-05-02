@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.models.group import Group
@@ -5,7 +6,7 @@ from server.schemas import GroupCreate, GroupUpdate
 from server.validation.checks import group_check
 
 
-async def create_group(db: AsyncSession, group: GroupCreate, tutor_id: int) -> int:
+async def create_group(db: AsyncSession, group: GroupCreate, tutor_id: int) -> Group:
     group_obj = Group(name=group.name, tutor_id=tutor_id)
     db.add(group_obj)
     await db.commit()
@@ -13,7 +14,7 @@ async def create_group(db: AsyncSession, group: GroupCreate, tutor_id: int) -> i
     return group_obj.id
 
 
-async def get_group(db: AsyncSession, group_id: int) -> Group:
+async def get_group(db: AsyncSession, group_id: int) -> Optional[Group]:
     return await db.get(Group, group_id)
 
 

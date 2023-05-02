@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,7 +8,7 @@ from server.CRUD.utils import add_to_db
 from server.validation.checks import tutor_check
 
 
-async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> int:
+async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> Tutor:
     db_tutor = Tutor(
         first_name=tutor.first_name,
         last_name=tutor.last_name,
@@ -16,13 +17,13 @@ async def create_tutor(db: AsyncSession, tutor: schemas.UserIn) -> int:
     return await add_to_db(db_tutor, db=db)
 
 
-async def get_tutor_by_id(db: AsyncSession, user_id: int):
+async def get_tutor_by_id(db: AsyncSession, user_id: int) -> Optional[Tutor]:
     stmt = select(Tutor).where(Tutor.id == user_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
-async def get_tutor_checked(db: AsyncSession, id: int):
+async def get_tutor_checked(db: AsyncSession, id: int) -> Tutor:
     tutor = await db.get(Tutor, id)
     tutor_check(tutor)
     return tutor

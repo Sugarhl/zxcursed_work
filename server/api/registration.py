@@ -36,7 +36,8 @@ async def register(
             email=user_in.email,
         )
         try:
-            user_id = await create_student(db=db, student=new_user)
+            student = await create_student(db=db, student=new_user)
+            user_id = student.id
         except Exception as e:
             print(e)
             raise HTTPException(
@@ -50,7 +51,8 @@ async def register(
             email=user_in.email,
         )
         try:
-            user_id = await create_tutor(db=db, tutor=new_user)
+            tutor = await create_tutor(db=db, tutor=new_user)
+            user_id = tutor.id
         except Exception as e:
             print(e)
             raise HTTPException(
@@ -59,9 +61,10 @@ async def register(
             )
 
     try:
-        creds_id = await create_user(
+        creds = await create_user(
             db=db, user_in=user_in, user_type=user_type, user_id=user_id
         )
+        creds_id = creds.id
     except Exception as e:
         print(e)
         raise HTTPException(

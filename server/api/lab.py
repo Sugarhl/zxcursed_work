@@ -27,8 +27,8 @@ async def create_lab_route(
 
         await get_group_checked(db, lab.group_id)
 
-        lab_id = await create_lab(db=db, lab=lab, tutor_id=tutor.id)
-        return {"lab_id": lab_id}
+        lab = await create_lab(db=db, lab=lab, tutor_id=tutor.id)
+        return {"lab_id": lab.id}
 
     except ValidationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())

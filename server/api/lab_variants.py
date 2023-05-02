@@ -4,6 +4,7 @@ from server.CRUD.lab import get_lab_checked
 from server.CRUD.student import get_students_by_group
 from server.generation.base import Variant
 from server.generation.generate import generate_for_group
+from server.models.lab_variant import LabVariant
 from server.models.student import Student
 import server.schemas as schemas
 
@@ -21,8 +22,10 @@ bearer = HTTPBearer()
 
 
 def assign_variants(variants: List[Variant], students: List[Student]):
-    for varinat in variants:
-        pass
+    assert len(variants) == len(students)
+
+    for i, variant in enumerate(variants):
+        LabVariant()
 
 
 @router.post(

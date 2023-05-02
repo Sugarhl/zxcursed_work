@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +15,7 @@ from server.validation.checks import user_check
 # Create statements
 async def create_user(
     db: AsyncSession, user_in: schemas.UserIn, user_type: UserType, user_id: int
-) -> int:
+) -> User:
     salt = generate_salt()
     hashed_password = generate_salted_password(salt=salt, password=user_in.password)
 
@@ -30,13 +31,15 @@ async def create_user(
 
 
 # Get statements
-async def get_user_by_username(db: AsyncSession, username: str):
+async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
     stmt = select(User).where(User.username == username)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
-async def get_user_by_email(db: AsyncSession, email: str, user_type: UserType):
+async def get_user_by_email(
+    db: AsyncSession, email: str, user_type: UserType
+) -> Optional[User]:
     if user_type == UserType.STUDENT:
         stmt = select(Student).where(Student.email == email)
     elif user_type == UserType.TUTOR:
@@ -45,13 +48,13 @@ async def get_user_by_email(db: AsyncSession, email: str, user_type: UserType):
     return result.scalar_one_or_none()
 
 
-async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID):
+async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID) -> Optional[User]:
     stmt = select(User).where(User.id == user_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
 
-async def get_user_checked(db: AsyncSession, id: uuid.UUID):
+async def get_user_checked(db: AsyncSession, id: uuid.UUID) -> User:
     user = await db.get(User, id)
     user_check(user)
     return user

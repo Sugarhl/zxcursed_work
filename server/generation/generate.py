@@ -36,7 +36,6 @@ async def generate_for_group(
     """
 
     prefix = f"L{lab.id}_GR{group.id}"
-    print(prefix)
 
     generator = get_generator_by_type(type=lab.generator_type, prefix=prefix)
 

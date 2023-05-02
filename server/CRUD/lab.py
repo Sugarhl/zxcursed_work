@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.models.lab import Lab
@@ -6,7 +7,7 @@ from server.CRUD.utils import add_to_db
 from server.validation.checks import lab_check
 
 
-async def create_lab(db: AsyncSession, lab: LabCreate, tutor_id: int) -> int:
+async def create_lab(db: AsyncSession, lab: LabCreate, tutor_id: int) -> Lab:
     lab_obj = Lab(
         lab_name=lab.lab_name,
         description=lab.description,
@@ -18,7 +19,7 @@ async def create_lab(db: AsyncSession, lab: LabCreate, tutor_id: int) -> int:
     return await add_to_db(db=db, obj=lab_obj)
 
 
-async def get_lab(db: AsyncSession, lab_id: int) -> Lab:
+async def get_lab(db: AsyncSession, lab_id: int) -> Optional[Lab]:
     return await db.get(Lab, lab_id)
 
 
