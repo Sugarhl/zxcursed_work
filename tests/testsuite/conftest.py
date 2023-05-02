@@ -1,5 +1,6 @@
 from datetime import datetime
 import subprocess
+from typing import Optional
 import pytest
 
 from httpx import AsyncClient
@@ -18,6 +19,7 @@ from server.utils import UserType, generate_salt, generate_salted_password
 from server.schemas import UserIn
 from server.models.student import Student
 import server.config as config
+from server.validation.checks import tutor_check
 from tests.testsuite.utils import generate_random_string, test_session_factory
 
 
@@ -119,13 +121,16 @@ def test_db_session():
 
 @pytest.fixture
 def test_student(test_student_in, test_db_session):
-    def do_test_student():
+    def do_test_student(group_id: Optional[int] = None):
         student = test_student_in()
         new_student = Student(
             first_name=student.first_name,
             last_name=student.last_name,
             email=student.email,
         )
+
+        if group_id:
+            new_student.group_id = group_id
 
         # Add the new student to the session
         test_db_session.add(new_student)
@@ -235,34 +240,74 @@ def test_tutor(test_tutor_in, test_db_session):
 
 
 @pytest.fixture
-def test_group(test_tutor, test_student, test_db_session):
-    def do_test_group():
+def test_group_empty(test_tutor, test_db_session):
+    def do_test_group_empty():
         tutor, _ = test_tutor()
-        group = Group(name="TEST GROUP", tutor_id=tutor.id)
+        unique_id = f"{generate_random_string()}"
+        group = Group(name=f"TEST GROUP {unique_id}", tutor_id=tutor.id)
         test_db_session.add(group)
         test_db_session.commit()
 
-        student, _ = test_student()
+        return group, tutor
 
-        return group, tutor, student
+    return do_test_group_empty
+
+
+@pytest.fixture
+def test_group(test_tutor, test_student, test_db_session):
+    def do_test_group():
+        tutor, _ = test_tutor()
+        unique_id = f"{generate_random_string()}"
+        group = Group(name=f"TEST GROUP {unique_id}", tutor_id=tutor.id)
+        test_db_session.add(group)
+        test_db_session.commit()
+
+        students = []
+        for i in range(5):
+            student, _ = test_student(group_id=group.id)
+            students.append(student)
+
+        return group, tutor, students
 
     return do_test_group
 
 
-def test_lab(test_db_session):
-    def do_test_lab():
+@pytest.fixture
+def test_lab_with_group(test_group, test_db_session):
+    def _test_lab_with_group():
         unique_str = generate_random_string()
+
+        group, tutor, studens = test_group()
 
         lab = Lab(
             lab_name=f"Test Lab {unique_str}",
             description=f"A test lab number {unique_str}",
             date_start=datetime.now(),
             deadline=datetime.now(),
+            group_id=group.id,
+            tutor_id=tutor.id,
             generator_type=GenType.BASE,
         )
+
         test_db_session.add(lab)
         test_db_session.commit()
 
-        return lab
+        return lab, group, tutor, studens
 
-    return do_test_lab
+    return _test_lab_with_group
+
+
+@pytest.fixture
+def get_token(test_db_session):
+    def _get_token(user_id: int, user_type: UserType):
+        user = (
+            test_db_session.query(User)
+            .filter_by(user_id=user_id, user_type=user_type)
+            .first()
+        )
+        assert user
+
+        token = create_access_token(user_id=user.id, user_type=user_type)
+        return token.access_token
+
+    return _get_token

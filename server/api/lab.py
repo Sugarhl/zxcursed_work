@@ -21,7 +21,7 @@ async def create_lab_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+        tutor, user_type = await auth_by_token(db=db, auth=auth)
 
         tutor_access_check(user_type)
 
@@ -40,7 +40,7 @@ async def get_all_tutor_labs_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+        tutor, user_type = await auth_by_token(db=db, auth=auth)
         tutor_access_check(user_type)
         labs = await get_all_labs_by_tutor_id(db, tutor.id)
 
@@ -56,7 +56,7 @@ async def get_all_labs_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        await auth_by_token(db=db, token=auth.credentials)
+        await auth_by_token(db=db, auth=auth)
 
         labs = await get_all_labs(db)
 

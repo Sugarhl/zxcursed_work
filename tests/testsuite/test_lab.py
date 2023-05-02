@@ -14,12 +14,12 @@ pytestmark = pytest.mark.anyio
 async def test_lab_create(
     client: AsyncClient,
     test_tutor,
-    test_group,
+    test_group_empty,
     test_db_session,
 ):
     tutor, token = test_tutor()
 
-    group, _, _ = test_group()
+    group, _ = test_group_empty()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
@@ -50,9 +50,11 @@ async def test_lab_create(
 
 
 @pytest.mark.anyio
-async def test_lab_create_student_access(client: AsyncClient, test_student, test_group):
+async def test_lab_create_student_access(
+    client: AsyncClient, test_student, test_group_empty
+):
     _, token = test_student()
-    group, _, _ = test_group()
+    group, _ = test_group_empty()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
@@ -73,10 +75,12 @@ async def test_lab_create_student_access(client: AsyncClient, test_student, test
 
 
 @pytest.mark.anyio
-async def test_lab_create_incorrect_input(client: AsyncClient, test_group, test_tutor):
+async def test_lab_create_incorrect_input(
+    client: AsyncClient, test_group_empty, test_tutor
+):
     _, token = test_tutor()
 
-    group, _, _ = test_group()
+    group, _ = test_group_empty()
 
     lab_create = LabCreate(
         lab_name="Test Lab",
@@ -111,7 +115,7 @@ async def test_lab_create_incorrect_input(client: AsyncClient, test_group, test_
 
 
 @pytest.mark.anyio
-async def test_lab_create_non_exist_group(client: AsyncClient, test_group, test_tutor):
+async def test_lab_create_non_exist_group(client: AsyncClient, test_tutor):
     _, token = test_tutor()
     lab_create = LabCreate(
         lab_name="Test Lab",

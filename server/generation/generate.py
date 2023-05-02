@@ -6,6 +6,7 @@ from server.generation.base import GenType, NotebookGenerator, Variant
 from server.models.lab import Lab
 from server.models.group import Group
 from server.models.student import Student
+from server.storage.rocks_db_storage import save_variants
 
 
 HOME = os.path.expanduser("~")
@@ -41,4 +42,6 @@ async def generate_for_group(
 
     variants = await generator.generate_notebooks(n=len(students))
 
-    return variants
+    store_vars = await save_variants(variants=variants)
+
+    return store_vars

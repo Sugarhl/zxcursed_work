@@ -101,3 +101,16 @@ class LabOut(BaseModel):
 class GenerateVariantsParams(BaseModel):
     lab_id: int
     group_id: int
+
+
+class LabVariant(BaseModel):
+    id: int
+    lab_id: int
+    student_id: int
+    tutor_for_check_id: Optional[int]
+    variant_number: int
+    variant_filename: Optional[str]
+    file_key: Optional[str]
+
+    class Config:
+        orm_mode = True

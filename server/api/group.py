@@ -31,7 +31,7 @@ async def create_group_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+        tutor, user_type = await auth_by_token(db=db, auth=auth)
         tutor_access_check(user_type=user_type)
 
         group_id = await create_group(db=db, group=group, tutor_id=tutor.id)
@@ -50,7 +50,7 @@ async def get_all_groups_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        _, user_type = await auth_by_token(db=db, token=auth.credentials)
+        _, user_type = await auth_by_token(db=db, auth=auth)
 
         tutor_access_check(user_type=user_type)
         groups = await get_all_groups(db)
@@ -70,7 +70,7 @@ async def get_all_tutor_groups_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+        tutor, user_type = await auth_by_token(db=db, auth=auth)
         tutor_access_check(user_type=user_type)
 
         groups = await get_all_groups_by_tutor_id(db, tutor.id)
@@ -91,7 +91,7 @@ async def get_group_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        _, _ = await auth_by_token(db=db, token=auth.credentials)
+        _, _ = await auth_by_token(db=db, auth=auth)
         return await get_group_checked(db, group_id)
 
     except ValidationError as e:
@@ -109,7 +109,7 @@ async def update_group_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        tutor, user_type = await auth_by_token(db=db, token=auth.credentials)
+        tutor, user_type = await auth_by_token(db=db, auth=auth)
         tutor_access_check(user_type=user_type)
 
         existing_group = await get_group_checked(db, group_id)
@@ -129,7 +129,7 @@ async def set_student_group_route(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        user, user_type = await auth_by_token(db=db, token=auth.credentials)
+        user, user_type = await auth_by_token(db=db, auth=auth)
 
         group = await get_group_checked(db, params.group_id)
 

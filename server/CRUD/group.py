@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.models.group import Group
@@ -24,12 +24,12 @@ async def get_group_checked(db: AsyncSession, group_id: int) -> Group:
     return group
 
 
-async def get_all_groups_by_tutor_id(db: AsyncSession, tutor_id: int) -> list[Group]:
+async def get_all_groups_by_tutor_id(db: AsyncSession, tutor_id: int) -> List[Group]:
     groups = await db.execute(select(Group).filter(Group.tutor_id == tutor_id))
     return groups.scalars().all()
 
 
-async def get_all_groups(db: AsyncSession) -> list[Group]:
+async def get_all_groups(db: AsyncSession) -> List[Group]:
     groups = await db.execute(select(Group))
     return groups.scalars().all()
 

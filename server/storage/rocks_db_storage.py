@@ -1,12 +1,11 @@
 import asyncio
+from typing import List
+import nbformat
 import rocksdb
 import uuid
+from server.generation.base import Variant
 
 from server.storage.base_file_storage import FileStorage
-
-
-def get_rocksdb_storage():
-    return RocksDBStorage()
 
 
 class RocksDBStorage(FileStorage):
@@ -45,3 +44,12 @@ class RocksDBStorage(FileStorage):
             db.delete(file_id.encode())
         else:
             raise FileNotFoundError(f"File with ID {file_id} not found")
+
+
+async def save_variants(variants: List[Variant]):
+    db = RocksDBStorage()
+    for var in variants:
+        content = nbformat.writes(var.notebook).encode("utf-8")
+        file_key = await db.save_file(content)
+        var.key = file_key
+    return variants

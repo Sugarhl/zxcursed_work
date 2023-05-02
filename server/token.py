@@ -14,6 +14,7 @@ from server.schemas import Token
 from server.utils import UserType
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import HTTPAuthorizationCredentials
 
 
 def create_access_token(user_id: uuid.UUID, user_type: UserType) -> Token:
@@ -68,8 +69,14 @@ def decode_access_token(token: str) -> Tuple[int, UserType]:
         )
 
 
-async def auth_by_token(db: AsyncSession, token: str) -> User:
-    user_id, user_type = decode_access_token(token)
+async def auth_by_token(db: AsyncSession, auth: HTTPAuthorizationCredentials) -> User:
+    if not auth:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authorization header",
+        )
+
+    user_id, user_type = decode_access_token(auth.credentials)
     user = await get_user_checked(db=db, id=user_id)
 
     if user_type == UserType.STUDENT:

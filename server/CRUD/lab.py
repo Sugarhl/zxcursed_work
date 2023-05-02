@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.models.lab import Lab
@@ -29,12 +29,12 @@ async def get_lab_checked(db: AsyncSession, lab_id: int) -> Lab:
     return lab
 
 
-async def get_all_labs_by_tutor_id(db: AsyncSession, tutor_id: int) -> list[Lab]:
+async def get_all_labs_by_tutor_id(db: AsyncSession, tutor_id: int) -> List[Lab]:
     labs = await db.execute(select(Lab).filter(Lab.tutor_id == tutor_id))
     return labs.scalars().all()
 
 
-async def get_all_labs(db: AsyncSession) -> list[Lab]:
+async def get_all_labs(db: AsyncSession) -> List[Lab]:
     labs = await db.execute(select(Lab))
     return labs.scalars().all()
 
