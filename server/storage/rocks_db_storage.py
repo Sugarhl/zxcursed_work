@@ -1,11 +1,14 @@
 import asyncio
+from tabnanny import check
 from typing import List
+from attr import field
 import nbformat
 import rocksdb
 import uuid
 from server.generation.base import Variant
 
 from server.storage.base_file_storage import FileStorage
+from server.validation.checks import file_check
 
 
 class RocksDBStorage(FileStorage):
@@ -29,13 +32,27 @@ class RocksDBStorage(FileStorage):
         db.put(file_id.encode(), content)
         return file_id
 
+    async def update_file(self, file_key, content):
+        db = await self.get_instance()
+        get_value = self.get_file(file_key)
+        if get_value:
+            db.delete(file_key.encode())
+            db.put(file_key.encode(), content)
+            return True
+        return False
+
     async def get_file(self, file_id):
         db = await self.get_instance()
         get_value = db.get(file_id.encode())
         if get_value:
             return get_value
         else:
-            raise FileNotFoundError(f"File with ID {file_id} not found")
+            return None
+
+    async def get_file_checked(self, file_id):
+        file = await self.get_file(file_id=file_id)
+        file_check(file)
+        return file
 
     async def delete_file(self, file_id):
         db = await self.get_instance()

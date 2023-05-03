@@ -22,9 +22,7 @@ async def get_lab_variant(
     return await db.get(LabVariant, lab_variant_id)
 
 
-async def get_lab_variant_checked(
-    db: AsyncSession, lab_variant_id: int
-) -> LabVariant:
+async def get_lab_variant_checked(db: AsyncSession, lab_variant_id: int) -> LabVariant:
     lab_variant = await db.get(LabVariant, lab_variant_id)
     lab_variant_check(lab_variant)
     return lab_variant
@@ -49,6 +47,17 @@ async def get_all_lab_variants_by_student_id(
         select(LabVariant).filter(LabVariant.student_id == student_id)
     )
     return result.scalars().all()
+
+
+async def get_lab_variant_by_file_key_checked(
+    db: AsyncSession, file_key: str
+) -> List[LabVariant]:
+    result = await db.execute(
+        select(LabVariant).filter(LabVariant.file_key == file_key)
+    )
+    lab_variant = result.scalars().first()
+    lab_variant_check(lab_variant)
+    return lab_variant
 
 
 async def delete_lab_variant(

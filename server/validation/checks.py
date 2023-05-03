@@ -48,6 +48,14 @@ def lab_variant_check(lab_variant):
         )
 
 
+def file_check(file):
+    if not file:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found",
+        )
+
+
 # Access checks
 def tutor_access_check(user_type: UserType):
     if user_type != UserType.TUTOR:
