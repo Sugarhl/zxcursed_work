@@ -1,25 +1,34 @@
+import io
 from typing import List
+
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import StreamingResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
+import server.schemas as schemas
+
 from server.CRUD.group import get_group_checked
 from server.CRUD.lab import get_lab_checked
 from server.CRUD.lab_variant import (
     create_lab_variant_from_dict,
     get_all_lab_variants_by_student_id,
     get_lab_variant,
+    get_lab_variant_checked,
 )
-from server.CRUD.student import get_students_by_group
+from server.CRUD.student import get_student_checked, get_students_by_group
+
 from server.generation.base import Variant
 from server.generation.generate import generate_for_group
+
 from server.models.lab import Lab
 from server.models.lab_variant import LabVariant
 from server.models.student import Student
-import server.schemas as schemas
-
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.database import get_db
+from server.storage.rocks_db_storage import RocksDBStorage
 from server.token import auth_by_token
 from server.validation.checks import student_access_check, tutor_access_check
 
@@ -124,3 +133,63 @@ async def get_student_var_by_id(
         )
 
     return lab_variant
+
+
+@router.post(
+    "/tutor/all-by-student/{student_id}",
+    status_code=status.HTTP_201_CREATED,
+    response_model=List[schemas.LabVariant],
+)
+async def get_varinats_by_student_id(
+    student_id: int,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
+    _, user_type = await auth_by_token(db=db, auth=auth)
+
+    tutor_access_check(user_type)
+
+    student = await get_student_checked(db, student_id)
+
+    lab_variants = await get_all_lab_variants_by_student_id(
+        db=db, student_id=student.id
+    )
+
+    return lab_variants
+
+
+@router.post(
+    "/tutor/variant/{lab_var_id}",
+    status_code=status.HTTP_201_CREATED,
+    response_model=schemas.LabVariant,
+)
+async def get_var_by_id(
+    lab_var_id: int,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
+    tutor, user_type = await auth_by_token(db=db, auth=auth)
+    tutor_access_check(user_type)
+
+    lab_variant = await get_lab_variant_checked(db=db, lab_variant_id=lab_var_id)
+
+    return lab_variant
+
+
+@router.get("/file", response_class=StreamingResponse)
+async def get_lab_variant_file(
+    file_key: str,
+    file_name: str,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
+    await auth_by_token(db=db, auth=auth)
+
+    file_storage = RocksDBStorage()
+    file = await file_storage.get_file_checked(file_key)
+
+    return StreamingResponse(
+        io.BytesIO(file),
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f'attachment; filename="{file_name}"'},
+    )
