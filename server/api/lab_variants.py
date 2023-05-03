@@ -1,7 +1,11 @@
 from typing import List
 from server.CRUD.group import get_group_checked
 from server.CRUD.lab import get_lab_checked
-from server.CRUD.lab_variant import create_lab_variant_from_dict
+from server.CRUD.lab_variant import (
+    create_lab_variant_from_dict,
+    get_all_lab_variants_by_student_id,
+    get_lab_variant,
+)
 from server.CRUD.student import get_students_by_group
 from server.generation.base import Variant
 from server.generation.generate import generate_for_group
@@ -17,7 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.database import get_db
 from server.token import auth_by_token
-from server.validation.checks import tutor_access_check
+from server.validation.checks import student_access_check, tutor_access_check
 
 router = APIRouter()
 bearer = HTTPBearer(auto_error=False)
@@ -76,3 +80,47 @@ async def genrate_for_group_route(
     )
 
     return lab_variants
+
+
+@router.post(
+    "/student/all",
+    status_code=status.HTTP_201_CREATED,
+    response_model=List[schemas.LabVariant],
+)
+async def get_student_vars(
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
+    student, user_type = await auth_by_token(db=db, auth=auth)
+
+    student_access_check(user_type)
+
+    lab_variants = await get_all_lab_variants_by_student_id(
+        db=db, student_id=student.id
+    )
+
+    return lab_variants
+
+
+@router.post(
+    "/student/{lab_var_id}",
+    status_code=status.HTTP_201_CREATED,
+    response_model=schemas.LabVariant,
+)
+async def get_student_var_by_id(
+    lab_var_id: int,
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
+    student, user_type = await auth_by_token(db=db, auth=auth)
+    student_access_check(user_type)
+
+    lab_variant = await get_lab_variant(db=db, lab_variant_id=lab_var_id)
+
+    if lab_variant.student_id != student.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User does not have acess to lab variant",
+        )
+
+    return lab_variant

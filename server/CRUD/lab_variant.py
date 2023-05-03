@@ -3,6 +3,7 @@ from sqlalchemy import select
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.models.lab_variant import LabVariant
+from server.validation.checks import lab_variant_check
 
 
 async def create_lab_variant_from_dict(
@@ -21,6 +22,14 @@ async def get_lab_variant(
     return await db.get(LabVariant, lab_variant_id)
 
 
+async def get_lab_variant_checked(
+    db: AsyncSession, lab_variant_id: int
+) -> LabVariant:
+    lab_variant = await db.get(LabVariant, lab_variant_id)
+    lab_variant_check(lab_variant)
+    return lab_variant
+
+
 async def get_all_lab_variants(db: AsyncSession) -> List[LabVariant]:
     result = await db.execute(select(LabVariant))
     return result.scalars().all()
@@ -30,6 +39,15 @@ async def get_all_lab_variants_by_lab_id(
     db: AsyncSession, lab_id: int
 ) -> List[LabVariant]:
     result = await db.execute(select(LabVariant).filter(LabVariant.lab_id == lab_id))
+    return result.scalars().all()
+
+
+async def get_all_lab_variants_by_student_id(
+    db: AsyncSession, student_id: int
+) -> List[LabVariant]:
+    result = await db.execute(
+        select(LabVariant).filter(LabVariant.student_id == student_id)
+    )
     return result.scalars().all()
 
 

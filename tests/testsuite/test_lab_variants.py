@@ -12,14 +12,11 @@ pytestmark = pytest.mark.anyio
 
 
 @pytest.mark.anyio
-async def test_generate_variants_route(
-    client: AsyncClient, test_lab_with_group, get_token
-):
+async def test_generate_variants(client: AsyncClient, test_lab_with_group, get_token):
     lab, group, tutor, students = test_lab_with_group()
 
     token = get_token(tutor.id, UserType.TUTOR)
 
-    # Generate variants for the group
     params = schemas.GenerateVariantsParams(
         lab_id=lab.id,
         group_id=group.id,
@@ -46,9 +43,28 @@ async def test_generate_variants_route(
 
 
 @pytest.mark.anyio
-async def test_generate_variants_route_unauthorized(
-    client: AsyncClient, test_lab_with_group
+async def test_generate_variants_empty_group(
+    client: AsyncClient, test_lab_with_empty_group, get_token
 ):
+    lab, group, tutor = test_lab_with_empty_group()
+    token = get_token(tutor.id, UserType.TUTOR)
+
+    params = schemas.GenerateVariantsParams(
+        lab_id=lab.id,
+        group_id=group.id,
+    )
+
+    response = await client.post(
+        "/variants/generate",
+        headers={"Authorization": f"Bearer {token}"},
+        json=params.dict(),
+    )
+
+    assert response.status_code == 400
+
+
+@pytest.mark.anyio
+async def test_generate_variants_unauthorized(client: AsyncClient, test_lab_with_group):
     lab, group, _, _ = test_lab_with_group()
 
     params = schemas.GenerateVariantsParams(
@@ -65,7 +81,7 @@ async def test_generate_variants_route_unauthorized(
 
 
 @pytest.mark.anyio
-async def test_generate_variants_route_wrong_user_type(
+async def test_generate_variants_wrong_user_type(
     client: AsyncClient, test_lab_with_group, get_token
 ):
     lab, group, student, _ = test_lab_with_group()
@@ -87,7 +103,7 @@ async def test_generate_variants_route_wrong_user_type(
 
 
 @pytest.mark.anyio
-async def test_generate_variants_route_invalid_lab_id(
+async def test_generate_variants_invalid_lab_id(
     client: AsyncClient, test_lab_with_group, get_token
 ):
     lab, _, tutor, _ = test_lab_with_group()
@@ -109,7 +125,7 @@ async def test_generate_variants_route_invalid_lab_id(
 
 
 @pytest.mark.anyio
-async def test_generate_variants_route_invalid_group_id(
+async def test_generate_variants_invalid_group_id(
     client: AsyncClient, test_lab_with_group, get_token
 ):
     lab, _, tutor, _ = test_lab_with_group()
@@ -128,3 +144,135 @@ async def test_generate_variants_route_invalid_group_id(
     )
 
     assert response.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_get_student_variants(
+    client: AsyncClient, test_lab_with_group, get_token
+):
+    lab, group, tutor, students = test_lab_with_group()
+
+    tutor_token = get_token(tutor.id, UserType.TUTOR)
+
+    params = schemas.GenerateVariantsParams(
+        lab_id=lab.id,
+        group_id=group.id,
+    )
+
+    response = await client.post(
+        "/variants/generate",
+        headers={"Authorization": f"Bearer {tutor_token}"},
+        json=params.dict(),
+    )
+
+    assert response.status_code == 201
+    lab_variants = [LabVariant(**variant) for variant in response.json()]
+    assert len(lab_variants) == len(students)
+
+    for student in students:
+        student_token = get_token(student.id, UserType.STUDENT)
+
+        response = await client.post(
+            "/variants/student/all",
+            headers={"Authorization": f"Bearer {student_token}"},
+            json=params.dict(),
+        )
+
+        assert response.status_code == 201
+        student_lab_variants = [LabVariant(**variant) for variant in response.json()]
+        assert len(student_lab_variants) == 1
+
+        student_lab_variant = student_lab_variants[0]
+        assert student_lab_variant.lab_id == lab.id
+        assert student_lab_variant.student_id == student.id
+        assert student_lab_variant.variant_filename.endswith(".ipynb")
+        assert student_lab_variant.file_key is not None
+        assert await RocksDBStorage().get_file(student_lab_variant.file_key)
+
+
+@pytest.mark.anyio
+async def test_get_student_variants_not_allow(
+    client: AsyncClient, test_vars_with_group, get_token
+):
+    lab, tutor, students, _ = await test_vars_with_group()
+
+    token = get_token(tutor.id, UserType.TUTOR)
+
+    response = await client.post(
+        "/variants/student/all",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 403
+
+    student_token = get_token(students[0].id, UserType.STUDENT)
+
+    response = await client.post(
+        "/variants/student/all",
+        headers={"Authorization": f"Bearer {student_token}"},
+    )
+    assert response.status_code == 201
+    student_lab_variants = [LabVariant(**variant) for variant in response.json()]
+    assert len(student_lab_variants) == 1
+
+
+@pytest.mark.anyio
+async def test_get_student_var_by_id(
+    client: AsyncClient, test_vars_with_group, get_token
+):
+    _, _, students, lab_variants = await test_vars_with_group()
+    student = students[0]
+
+    variant = lab_variants[0]
+
+    student_token = get_token(student.id, UserType.STUDENT)
+    response = await client.post(
+        f"/variants/student/{variant.id}",
+        headers={"Authorization": f"Bearer {student_token}"},
+    )
+    assert response.status_code == 201
+
+    student_lab_variant = LabVariant(**response.json())
+    assert student_lab_variant.file_key == variant.file_key
+    assert student_lab_variant.variant_filename == variant.variant_filename
+    assert student_lab_variant.lab_id == variant.lab_id
+    assert student_lab_variant.student_id == variant.student_id
+
+
+@pytest.mark.anyio
+async def test_get_student_var_by_id_not_allow(
+    client: AsyncClient, test_vars_with_group, get_token
+):
+    _, tutor, students, lab_variants = await test_vars_with_group()
+
+    tutor_token = get_token(tutor.id, UserType.TUTOR)
+    student_token = get_token(students[0].id, UserType.STUDENT)
+    student_token_1 = get_token(students[1].id, UserType.STUDENT)
+
+    response = await client.post(
+        f"/variants/student/{lab_variants[0].id}",
+        headers={"Authorization": f"Bearer {tutor_token}"},
+    )
+    assert response.status_code == 403
+
+    response = await client.post(
+        f"/variants/student/{lab_variants[1].id}",
+        headers={"Authorization": f"Bearer {student_token}"},
+    )
+
+    assert response.status_code == 403
+
+    response = await client.post(
+        f"/variants/student/{lab_variants[0].id}",
+        headers={"Authorization": f"Bearer {student_token_1}"},
+    )
+
+    assert response.status_code == 403
+
+    _, _, _, other_lab_variants = await test_vars_with_group()
+
+    response = await client.post(
+        f"/variants/student/{other_lab_variants[0].id}",
+        headers={"Authorization": f"Bearer {student_token}"},
+    )
+    assert response.status_code == 403

@@ -4,7 +4,7 @@ from typing import Optional
 import pytest
 
 from httpx import AsyncClient
-from server.generation.generate import GenType
+from server.generation.generate import GenType, generate_for_group
 from server.main import app
 
 from server.models.base import Base
@@ -19,7 +19,11 @@ from server.utils import UserType, generate_salt, generate_salted_password
 from server.schemas import UserIn
 from server.models.student import Student
 import server.config as config
-from tests.testsuite.utils import generate_random_string, test_session_factory
+from tests.testsuite.utils import (
+    assign_variants,
+    generate_random_string,
+    test_session_factory,
+)
 
 
 @pytest.fixture(
@@ -297,8 +301,48 @@ def test_lab_with_group(test_group, test_db_session):
 
 
 @pytest.fixture
+def test_lab_with_empty_group(test_group_empty, test_db_session):
+    def _do_test_lab_with_empty_group():
+        unique_str = generate_random_string()
+
+        group, tutor = test_group_empty()
+
+        lab = Lab(
+            lab_name=f"Test Lab {unique_str}",
+            description=f"A test lab number {unique_str}",
+            date_start=datetime.now(),
+            deadline=datetime.now(),
+            group_id=group.id,
+            tutor_id=tutor.id,
+            generator_type=GenType.BASE,
+        )
+
+        test_db_session.add(lab)
+        test_db_session.commit()
+
+        return lab, group, tutor
+
+    return _do_test_lab_with_empty_group
+
+
+@pytest.fixture
+def test_vars_with_group(test_lab_with_group, test_db_session):
+    async def _do_test_vars_with_group():
+        lab, group, tutor, students = test_lab_with_group()
+
+        variants = await generate_for_group(lab=lab, group=group, students=students)
+
+        lab_variants = assign_variants(
+            lab=lab, variants=variants, students=students, db=test_db_session
+        )
+        return lab, tutor, students, lab_variants
+
+    return _do_test_vars_with_group
+
+
+@pytest.fixture
 def get_token(test_db_session):
-    def _get_token(user_id: int, user_type: UserType):
+    def _do_get_token(user_id: int, user_type: UserType):
         user = (
             test_db_session.query(User)
             .filter_by(user_id=user_id, user_type=user_type)
@@ -309,4 +353,4 @@ def get_token(test_db_session):
         token = create_access_token(user_id=user.id, user_type=user_type)
         return token.access_token
 
-    return _get_token
+    return _do_get_token

@@ -40,11 +40,26 @@ def group_check(group):
         )
 
 
+def lab_variant_check(lab_variant):
+    if not lab_variant:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lab variant does not exist",
+        )
+
+
 # Access checks
 def tutor_access_check(user_type: UserType):
     if user_type != UserType.TUTOR:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only tutors are allowed"
+        )
+
+
+def student_access_check(user_type: UserType):
+    if user_type != UserType.STUDENT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only students are allowed"
         )
 
 
