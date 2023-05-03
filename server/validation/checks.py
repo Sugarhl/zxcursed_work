@@ -1,4 +1,8 @@
 from fastapi import HTTPException, status
+from server.models import group
+from server.models.student import Student
+from server.models.tutor import Tutor
+from server.models.lab_variant import LabVariant
 
 from server.utils import UserType
 
@@ -48,6 +52,14 @@ def lab_variant_check(lab_variant):
         )
 
 
+def solution_check(file):
+    if not file:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Solution not found",
+        )
+
+
 def file_check(file):
     if not file:
         raise HTTPException(
@@ -71,9 +83,17 @@ def student_access_check(user_type: UserType):
         )
 
 
-def group_check_access(group, tutor):
+def group_check_access(group: group.Group, tutor: Tutor):
     if group.tutor_id != tutor.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have access to this group",
+        )
+
+
+def lab_var_check_access(lab_variant: LabVariant, student: Student):
+    if lab_variant.student_id != student.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have access to this lab variant",
         )

@@ -31,7 +31,6 @@ class NotebookGenerator:
 
         for i in range(n):
             file_name = f"{self.prefix}_VAR{i}.ipynb"
-            file_path = os.path.join(self.directory, file_name)
 
             notebook = create_jupiter(SAMPLE_SRC)
 

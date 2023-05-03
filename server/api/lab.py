@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.CRUD.group import get_group_checked
+from server.generation.base import GenType
 
 import server.schemas as schemas
 from server.CRUD.lab import create_lab, get_all_labs, get_all_labs_by_tutor_id
@@ -34,7 +35,7 @@ async def create_lab_route(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.get("/tutor/all", response_model=list[schemas.LabOut])
+@router.get("/get/tutor/all", response_model=list[schemas.LabOut])
 async def get_all_tutor_labs_route(
     auth: HTTPAuthorizationCredentials = Depends(bearer),
     db: AsyncSession = Depends(get_db),
@@ -50,7 +51,7 @@ async def get_all_tutor_labs_route(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-@router.get("/all", response_model=list[schemas.LabOut])
+@router.get("/get/all", response_model=list[schemas.LabOut])
 async def get_all_labs_route(
     auth: HTTPAuthorizationCredentials = Depends(bearer),
     db: AsyncSession = Depends(get_db),
@@ -64,3 +65,8 @@ async def get_all_labs_route(
 
     except ValidationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+
+
+@router.get("/get/generators")
+async def get_generators():
+    return {"generators": [generator.value for generator in GenType]}

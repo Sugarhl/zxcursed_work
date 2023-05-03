@@ -1,10 +1,6 @@
-import io
 from typing import List
-
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -28,7 +24,6 @@ from server.models.lab_variant import LabVariant
 from server.models.student import Student
 
 from server.database import get_db
-from server.storage.rocks_db_storage import RocksDBStorage
 from server.token import auth_by_token
 from server.validation.checks import student_access_check, tutor_access_check
 
@@ -174,22 +169,3 @@ async def get_var_by_id(
     lab_variant = await get_lab_variant_checked(db=db, lab_variant_id=lab_var_id)
 
     return lab_variant
-
-
-@router.get("/file", response_class=StreamingResponse)
-async def get_lab_variant_file(
-    file_key: str,
-    file_name: str,
-    auth: HTTPAuthorizationCredentials = Depends(bearer),
-    db: AsyncSession = Depends(get_db),
-):
-    await auth_by_token(db=db, auth=auth)
-
-    file_storage = RocksDBStorage()
-    file = await file_storage.get_file_checked(file_key)
-
-    return StreamingResponse(
-        io.BytesIO(file),
-        media_type="application/octet-stream",
-        headers={"Content-Disposition": f'attachment; filename="{file_name}"'},
-    )

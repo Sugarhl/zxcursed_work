@@ -55,7 +55,7 @@ class GroupOut(BaseModel):
 # solutions
 class SolutionUpload(BaseModel):
     lab_variant_id: int
-    solution_text: Optional[str]
+    comment: Optional[str]
     solution_file: UploadFile
 
 
@@ -114,3 +114,10 @@ class LabVariant(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class LabSolution(BaseModel):
+    id: int
+    lab_variant_id: int
+    filename: str
+    file_key: str

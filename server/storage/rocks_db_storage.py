@@ -1,7 +1,5 @@
 import asyncio
-from tabnanny import check
 from typing import List
-from attr import field
 import nbformat
 import rocksdb
 import uuid
@@ -34,7 +32,7 @@ class RocksDBStorage(FileStorage):
 
     async def update_file(self, file_key, content):
         db = await self.get_instance()
-        get_value = self.get_file(file_key)
+        get_value = await self.get_file(file_key)
         if get_value:
             db.delete(file_key.encode())
             db.put(file_key.encode(), content)

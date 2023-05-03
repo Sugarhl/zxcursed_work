@@ -1,7 +1,6 @@
 from sqlalchemy import (
     Column,
     Integer,
-    LargeBinary,
     String,
     ForeignKey,
 )
@@ -21,9 +20,13 @@ class LabSolution(Base):
     )
 
     solution_filename = Column(String)
-    file_data = Column(LargeBinary)
+    file_key = Column(String)
+
     auto_mark = Column(Integer)
     tutor_mark = Column(Integer)
+
+    tutor_comment = Column(String)
+    student_comment = Column(String)
 
     variant = relationship("LabVariant", back_populates="solutions")
     comments = relationship("LabSolutionComment", back_populates="solution")
