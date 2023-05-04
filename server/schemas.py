@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from typing import Optional
-from fastapi import UploadFile
 from pydantic import BaseModel, constr, validator
 import dateutil.parser as parser
 import pytz
@@ -50,13 +49,6 @@ class GroupOut(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-# solutions
-class SolutionUpload(BaseModel):
-    lab_variant_id: int
-    comment: Optional[str]
-    solution_file: UploadFile
 
 
 class LabSolutionCommentCreate(BaseModel):

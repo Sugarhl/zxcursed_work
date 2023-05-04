@@ -23,7 +23,7 @@ async def test_generate_variants(client: AsyncClient, test_lab_with_group, get_t
     )
 
     response = await client.post(
-        "/variants/generate",
+        "/variant/generate",
         headers={"Authorization": f"Bearer {token}"},
         json=params.dict(),
     )
@@ -55,7 +55,7 @@ async def test_generate_variants_empty_group(
     )
 
     response = await client.post(
-        "/variants/generate",
+        "/variant/generate",
         headers={"Authorization": f"Bearer {token}"},
         json=params.dict(),
     )
@@ -73,7 +73,7 @@ async def test_generate_variants_unauthorized(client: AsyncClient, test_lab_with
     )
 
     response = await client.post(
-        "/variants/generate",
+        "/variant/generate",
         json=params.dict(),
     )
 
@@ -94,7 +94,7 @@ async def test_generate_variants_wrong_user_type(
     )
 
     response = await client.post(
-        "/variants/generate",
+        "/variant/generate",
         headers={"Authorization": f"Bearer {token}"},
         json=params.dict(),
     )
@@ -116,7 +116,7 @@ async def test_generate_variants_invalid_lab_id(
     )
 
     response = await client.post(
-        "/variants/generate",
+        "/variant/generate",
         headers={"Authorization": f"Bearer {token}"},
         json=params.dict(),
     )
@@ -138,7 +138,7 @@ async def test_generate_variants_invalid_group_id(
     )
 
     response = await client.post(
-        "/variants/generate",
+        "/variant/generate",
         headers={"Authorization": f"Bearer {token}"},
         json=params.dict(),
     )
@@ -156,7 +156,7 @@ async def test_get_student_variants(
         student_token = get_token(student.id, UserType.STUDENT)
 
         response = await client.post(
-            "/variants/student/all",
+            "/variant/student/all",
             headers={"Authorization": f"Bearer {student_token}"},
         )
 
@@ -181,7 +181,7 @@ async def test_get_student_variants_not_allow(
     token = get_token(tutor.id, UserType.TUTOR)
 
     response = await client.post(
-        "/variants/student/all",
+        "/variant/student/all",
         headers={"Authorization": f"Bearer {token}"},
     )
 
@@ -190,7 +190,7 @@ async def test_get_student_variants_not_allow(
     student_token = get_token(students[0].id, UserType.STUDENT)
 
     response = await client.post(
-        "/variants/student/all",
+        "/variant/student/all",
         headers={"Authorization": f"Bearer {student_token}"},
     )
     assert response.status_code == 201
@@ -209,7 +209,7 @@ async def test_get_student_var_by_id(
 
     student_token = get_token(student.id, UserType.STUDENT)
     response = await client.post(
-        f"/variants/student/{variant.id}",
+        f"/variant/student/{variant.id}",
         headers={"Authorization": f"Bearer {student_token}"},
     )
     assert response.status_code == 201
@@ -232,20 +232,20 @@ async def test_get_student_var_by_id_not_allow(
     student_token_1 = get_token(students[1].id, UserType.STUDENT)
 
     response = await client.post(
-        f"/variants/student/{lab_variants[0].id}",
+        f"/variant/student/{lab_variants[0].id}",
         headers={"Authorization": f"Bearer {tutor_token}"},
     )
     assert response.status_code == 403
 
     response = await client.post(
-        f"/variants/student/{lab_variants[1].id}",
+        f"/variant/student/{lab_variants[1].id}",
         headers={"Authorization": f"Bearer {student_token}"},
     )
 
     assert response.status_code == 403
 
     response = await client.post(
-        f"/variants/student/{lab_variants[0].id}",
+        f"/variant/student/{lab_variants[0].id}",
         headers={"Authorization": f"Bearer {student_token_1}"},
     )
 
@@ -254,7 +254,7 @@ async def test_get_student_var_by_id_not_allow(
     _, _, _, other_lab_variants = await test_vars_with_group()
 
     response = await client.post(
-        f"/variants/student/{other_lab_variants[0].id}",
+        f"/variant/student/{other_lab_variants[0].id}",
         headers={"Authorization": f"Bearer {student_token}"},
     )
     assert response.status_code == 403
@@ -269,7 +269,7 @@ async def test_get_variants_by_student_id(
 
     for student in students:
         response = await client.post(
-            f"/variants/tutor/all-by-student/{student.id}",
+            f"/variant/tutor/all-by-student/{student.id}",
             headers={"Authorization": f"Bearer {token}"},
         )
         print(response.json())
@@ -295,13 +295,13 @@ async def test_get_variants_by_student_id_negative(
     tutor_token = get_token(tutor.id, UserType.TUTOR)
 
     response = await client.post(
-        f"/variants/tutor/all-by-student/{students[0].id}",
+        f"/variant/tutor/all-by-student/{students[0].id}",
         headers={"Authorization": f"Bearer {student_token}"},
     )
     assert response.status_code == 403
 
     response = await client.post(
-        f"/variants/tutor/all-by-student/{999}",
+        f"/variant/tutor/all-by-student/{999}",
         headers={"Authorization": f"Bearer {tutor_token}"},
     )
     assert response.status_code == 404
@@ -316,7 +316,7 @@ async def test_get_var_by_id(client: AsyncClient, test_vars_with_group, get_toke
     tutor_token = get_token(tutor.id, UserType.TUTOR)
 
     response = await client.post(
-        f"/variants/tutor/variant/{variant.id}",
+        f"/variant/tutor/variant/{variant.id}",
         headers={"Authorization": f"Bearer {tutor_token}"},
     )
     assert response.status_code == 201
@@ -329,7 +329,7 @@ async def test_get_var_by_id(client: AsyncClient, test_vars_with_group, get_toke
 
     token = get_token(students[0].id, UserType.STUDENT)
     response = await client.post(
-        f"/variants/tutor/variant/{variant.id}",
+        f"/variant/tutor/variant/{variant.id}",
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 403

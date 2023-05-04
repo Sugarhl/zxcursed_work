@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, UploadFile, status
 from server.models import group
 from server.models.student import Student
 from server.models.tutor import Tutor
@@ -95,5 +95,13 @@ def lab_var_check_access(lab_variant: LabVariant, student: Student):
     if lab_variant.student_id != student.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this lab variant",
+            detail="User does not have access to lab variant",
+        )
+
+
+def file_ext_check(file: UploadFile):
+    if not file.filename.endswith(".ipynb"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Only .ipynb files are supported.",
         )

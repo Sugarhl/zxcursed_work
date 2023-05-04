@@ -29,9 +29,9 @@ app.include_router(
     prefix="/registration",
     tags=["Registration"],
 )
-app.include_router(solutions_router, prefix="/solutions", tags=["Solutions"])
+app.include_router(solutions_router, prefix="/solution", tags=["Solutions"])
 app.include_router(lab_router, prefix="/lab", tags=["Lab"])
-app.include_router(variants_router, prefix="/variants", tags=["Variants"])
+app.include_router(variants_router, prefix="/variant", tags=["Variants"])
 app.include_router(file_router, prefix="/file", tags=["Files"])
 app.include_router(group_router, prefix="/group", tags=["Group"])
 app.include_router(template_router, prefix="/temp", tags=["Template"])

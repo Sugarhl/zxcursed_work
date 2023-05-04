@@ -1,44 +1,184 @@
-# import io
-# import json
-# from fastapi import UploadFile
-# import pytest
+import pytest
 
-# from server.schemas import SolutionUpload, LabSolutionCommentCreate
-# from server.utils import UserType
+from httpx import AsyncClient
+from server.storage.rocks_db_storage import RocksDBStorage
+from server.utils import UserType
 
 
-# @pytest.mark.asyncio
-# async def test_upload_solution(test_app, authorized_student_token):
-#     headers = {"Authorization": f"Bearer {await authorized_student_token}"}
-#     solution_data = SolutionUpload(
-#         lab_variant_id=1, solution_text="Test solution", solution_file=UploadFile("test.txt"))
-
-#     # Creating a file-like buffer to hold the content of the file
-#     test_file = io.BytesIO(b"Test file content")
-
-#     # Creating a multipart request with the file and JSON data
-#     response = test_app.post("/solutions/upload_solution",
-#                              headers=headers,
-#                              data={"solution": json.dumps(
-#                                  solution_data.dict(exclude={"solution_file"}))},
-#                              files={"solution_file": ("test.txt", test_file, "text/plain")})
-
-#     if user_type == "Student":
-#         assert response.status_code == 201, response.text
-#         assert "solution_id" in response.json()
-#     else:
-#         assert response.status_code == 403, response.text
-#         assert "Only students are allowed to upload solutions" in response.json()[
-#             "detail"]
+pytestmark = pytest.mark.anyio
 
 
-# @pytest.mark.asyncio
-# async def test_create_lab_solution_comment(test_app, authorized_student_token):
-#     headers = {
-#         "Authorization": f"Bearer {await authorized_student_token}"}
-#     comment_data = LabSolutionCommentCreate(solution_id=1, text="Test comment")
-#     response = test_app.post("/solutions/create_lab_solution_comment",
-#                              json=json.loads(comment_data.json()), headers=headers)
+@pytest.mark.anyio
+async def test_upload_solution(client: AsyncClient, test_vars_with_group, get_token):
+    lab, _, students, lab_variants = await test_vars_with_group()
 
-#     assert response.status_code == 201, response.text
-#     assert "comment_id" in response.json()
+    lab_variant = lab_variants[0]
+    token = get_token(students[0].id, UserType.STUDENT)
+
+    solution_data = {
+        "lab_variant_id": lab_variant.id,
+        "comment": "Test solution comment",
+    }
+
+    filename = "test_solution.ipynb"
+    file_data = b"test solution contents"
+
+    files = {"file": (filename, file_data)}
+
+    response = await client.post(
+        "/solution/upload_solution",
+        headers={"Authorization": f"Bearer {token}"},
+        data=solution_data,
+        files=files,
+    )
+
+    assert response.status_code == 201
+    assert response.json()["filename"] == "test_solution.ipynb"
+    assert response.json()["lab_variant_id"] == lab_variant.id
+
+    file_key = response.json()["file_key"]
+    assert file_key is not None
+    storage = RocksDBStorage()
+    file_content = await storage.get_file(file_key)
+    assert file_data == file_content
+
+
+@pytest.mark.anyio
+async def test_upload_solution_student_access(
+    client: AsyncClient, test_vars_with_group, get_token
+):
+    lab, group, students, lab_variants = await test_vars_with_group()
+
+    student_1 = students[0]
+    lab_variant = lab_variants[0]
+
+    assert student_1.id == lab_variant.student_id
+    student_2 = students[1]
+    assert student_2.id != lab_variant.student_id
+
+    payload = {
+        "lab_variant_id": lab_variant.id,
+        "comment": "Test solution comment",
+    }
+
+    files = {"file": ("test_solution.ipynb", b"test solution contents")}
+
+    token = get_token(student_2.id, UserType.STUDENT)
+    response = await client.post(
+        "/solution/upload_solution",
+        headers={"Authorization": f"Bearer {token}"},
+        data=payload,
+        files=files,
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "User does not have access to lab variant"
+
+
+@pytest.mark.anyio
+async def test_upload_solution_access_error(
+    client: AsyncClient, test_vars_with_group, get_token
+):
+    _, _, students, lab_variants = await test_vars_with_group()
+    _, _, _, other_group_variants = await test_vars_with_group()
+
+    other_group_variant = other_group_variants[0]
+
+    token = get_token(students[0].id, UserType.STUDENT)
+
+    solution_data = {
+        "lab_variant_id": other_group_variant.id,
+        "comment": "Test solution comment",
+    }
+
+    filename = "test_solution.ipynb"
+    file_data = b"test solution contents"
+
+    files = {"file": (filename, file_data)}
+
+    response = await client.post(
+        "/solution/upload_solution",
+        headers={"Authorization": f"Bearer {token}"},
+        data=solution_data,
+        files=files,
+    )
+
+    assert response.status_code == 403
+    assert "User does not have access to lab variant" in response.json()["detail"]
+
+
+async def test_upload_solution_route_invalid_lab_variant_id(
+    client: AsyncClient, test_vars_with_group, get_token
+):
+    _, _, students, _ = await test_vars_with_group()
+
+    token = get_token(students[0].id, UserType.STUDENT)
+
+    solution_data = {
+        "lab_variant_id": 9999,
+        "comment": "Test solution comment",
+    }
+
+    filename = "test_solution.ipynb"
+    file_data = b"test solution contents"
+
+    files = {"file": (filename, file_data)}
+
+    response = await client.post(
+        "/solution/upload_solution",
+        headers={"Authorization": f"Bearer {token}"},
+        data=solution_data,
+        files=files,
+    )
+
+    assert response.status_code == 404
+
+
+async def test_upload_solution_unsupported_file_type(
+    client: AsyncClient, test_vars_with_group, get_token
+):
+    lab, _, students, lab_variants = await test_vars_with_group()
+
+    lab_variant = lab_variants[0]
+    token = get_token(students[0].id, UserType.STUDENT)
+
+    solution_data = {
+        "lab_variant_id": lab_variant.id,
+        "comment": "Test solution comment",
+    }
+
+    filename = "test_solution.pdf"
+    file_data = b"test solution contents"
+
+    files = {"file": (filename, file_data)}
+
+    response = await client.post(
+        "/solution/upload_solution",
+        headers={"Authorization": f"Bearer {token}"},
+        data=solution_data,
+        files=files,
+    )
+
+    assert response.status_code == 422
+
+
+async def test_upload_solution_missing_file(
+    client: AsyncClient, test_vars_with_group, get_token
+):
+    lab, _, students, lab_variants = await test_vars_with_group()
+
+    lab_variant = lab_variants[0]
+    token = get_token(students[0].id, UserType.STUDENT)
+
+    solution_data = {
+        "lab_variant_id": lab_variant.id,
+        "comment": "Test solution comment",
+    }
+
+    response = await client.post(
+        "/solution/upload_solution",
+        headers={"Authorization": f"Bearer {token}"},
+        data=solution_data,
+    )
+
+    assert response.status_code == 422

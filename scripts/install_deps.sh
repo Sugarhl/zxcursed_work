@@ -10,6 +10,9 @@ if ! command -v pipenv &> /dev/null; then
   pip install pipenv
 fi
 
+echo "Remove old venv dependencies..."
+pipenv --rm
+
 echo "Installing dependencies..."
 pipenv install
 
