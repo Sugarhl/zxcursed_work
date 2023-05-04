@@ -51,7 +51,7 @@ async def get_all_lab_variants_by_student_id(
 
 async def get_lab_variant_by_file_key_checked(
     db: AsyncSession, file_key: str
-) -> List[LabVariant]:
+) -> LabVariant:
     result = await db.execute(
         select(LabVariant).filter(LabVariant.file_key == file_key)
     )

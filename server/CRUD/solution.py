@@ -1,5 +1,5 @@
-import select
-from typing import Optional
+from sqlalchemy import select
+from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.models.lab_solution import LabSolution
@@ -37,9 +37,20 @@ async def get_lab_solution_checked(
     return solution
 
 
+async def get_lab_solution_by_file_key_checked(
+    db: AsyncSession, file_key: str
+) -> LabSolution:
+    result = await db.execute(
+        select(LabSolution).filter(LabSolution.file_key == file_key)
+    )
+    solution = result.scalars().first()
+    solution_check(solution)
+    return solution
+
+
 async def get_lab_solutions_by_lab_variant_id(
     db: AsyncSession, lab_variant_id: int
-) -> list[LabSolution]:
+) -> List[LabSolution]:
     result = await db.execute(
         select(LabSolution).where(LabSolution.lab_variant_id == lab_variant_id)
     )
@@ -48,10 +59,11 @@ async def get_lab_solutions_by_lab_variant_id(
 
 async def get_lab_solutions_by_lab_variant_id_checked(
     db: AsyncSession, lab_variant_id: int
-) -> list[LabSolution]:
-    solution = get_lab_solutions_by_lab_variant_id(db, lab_variant_id)
-    solution_check(solution)
-    return solution
+) -> List[LabSolution]:
+    solutions = get_lab_solutions_by_lab_variant_id(db, lab_variant_id)
+    for solution in solutions:
+        solution_check(solution)
+    return solutions
 
 
 async def update_lab_solution(

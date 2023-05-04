@@ -13,6 +13,9 @@ from server.models.group import Group
 from server.models.lab import Lab
 from server.models.tutor import Tutor
 from server.models.user import User
+from server.models.lab_solution import LabSolution
+from server.models.lab_variant import LabVariant
+from server.storage.rocks_db_storage import RocksDBStorage
 from server.token import create_access_token
 
 from server.utils import UserType, generate_salt, generate_salted_password
@@ -354,3 +357,23 @@ def get_token(test_db_session):
         return token.access_token
 
     return _do_get_token
+
+
+@pytest.fixture
+def test_solution(test_db_session):
+    async def _do_test_solution(variant: LabVariant) -> LabSolution:
+        file_content = b"test solution"
+        storage = RocksDBStorage()
+        file_key = await storage.save_file(file_content)
+
+        sol = LabSolution(
+            lab_variant_id=variant.id,
+            solution_filename="test_solution.ipynb",
+            file_key=file_key,
+        )
+
+        test_db_session.add(sol)
+        test_db_session.commit()
+        return sol
+
+    return _do_test_solution
