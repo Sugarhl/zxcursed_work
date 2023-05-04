@@ -3,9 +3,7 @@ import os
 import enum
 from typing import List
 
-from server.generation.jupiter_from_py import create_jupiter
-
-SAMPLE_SRC = "server/generation/samples/sample_work.py"
+from server.generation.jupiter_from_py import create_jupiter, SAMPLE_SRC
 
 
 class GenType(enum.Enum):

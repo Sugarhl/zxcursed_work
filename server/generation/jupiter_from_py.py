@@ -30,14 +30,30 @@ def create_jupiter(path_to_src: str):
 
         begin_line = all_lines[i]
         cell_type = begin_line.split(" ")[2]
-        cell_lines = all_lines[i:]
-        cell_contents = "\n".join(cell_lines[1:]).strip()
 
         if cell_type == CODE:
+            cell_lines = all_lines[(i + 1) :]
+            cell_contents = "\n".join(cell_lines).strip()
             cell_obj = nbformat.v4.new_code_cell(cell_contents)
+
         elif cell_type == MARKDOWN:
+            cell_lines = all_lines[(i + 2) : -2]
+            cell_contents = "\n".join(cell_lines).strip()
             cell_obj = nbformat.v4.new_markdown_cell(cell_contents)
 
         notebook.cells.append(cell_obj)
 
     return notebook
+
+
+SAMPLE_SRC = "server/generation/samples/sample_work"
+SAMPLE_OUT = "server/generation/samples/sample.ipynb"
+
+
+def print_sample():
+    notebook = create_jupiter(SAMPLE_SRC)
+    with open(SAMPLE_OUT, "w") as f:
+        nbformat.write(notebook, f)
+
+
+print_sample()
