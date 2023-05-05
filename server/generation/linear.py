@@ -1,5 +1,5 @@
 import numpy as np
-from sympy import Eq, symbols, linsolve
+from sympy import Eq, symbols, linsolve, latex
 
 
 def generate_known_solution():
@@ -26,13 +26,18 @@ def solve_system(A, B):
 
 
 def to_latex(A, B, known_solution):
+    x1, x2, x3, x4, x5 = symbols("x1 x2 x3 x4 x5")
+    equations = [
+        Eq(
+            A[i, 0] * x1 + A[i, 1] * x2 + A[i, 2] * x3 + A[i, 3] * x4 + A[i, 4] * x5,
+            B[i, 0],
+        )
+        for i in range(3)
+    ]
+
     latex_equations = "\\begin{align*}\n\\left\\{\\begin{matrix}\n"
-    for i in range(3):
-        row = [f"{A[i, j]:+d} x_{{{j+1}}}" for j in range(5)]
-        row_str = " ".join(row)
-        if row_str.startswith("+"):
-            row_str = row_str[1:]
-        latex_equations += f"{row_str} = " + f"{B[i, 0]:+d} \\\\ \n".replace("+", "")
+    for eq in equations:
+        latex_equations += latex(eq) + " \\\\ \n"
     latex_equations += "\\end{matrix}\\right."
 
     latex_solution = "\\qquad X_0=\\left[\\begin{matrix}"

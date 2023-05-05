@@ -26,7 +26,7 @@ class Practice_1(NotebookGenerator):
 
             ind_task = generate_linear_system_latex()
             cell_idx = len(notebook["cells"]) - 2
-            notebook["cells"][cell_idx]["source"] += f"\n{ind_task}\n"
+            notebook["cells"][cell_idx]["source"] += f"\n \n {ind_task}\n"
 
             variants.append(Variant(file_name=file_name, notebook=notebook))
 
