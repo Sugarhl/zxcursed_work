@@ -34,12 +34,14 @@ def create_jupiter(path_to_src: str):
         cell_type = begin_line.split(" ")[2]
 
         if cell_type == CODE:
-            cell_lines = all_lines[(i + 1) :]
+            q = i + 1
+            cell_lines = all_lines[q:]
             cell_contents = "\n".join(cell_lines).strip()
             cell_obj = nbformat.v4.new_code_cell(cell_contents)
 
         elif cell_type == MARKDOWN:
-            cell_lines = all_lines[(i + 2) : -2]
+            q = i + 2
+            cell_lines = all_lines[q:-2]
             cell_contents = "\n".join(cell_lines).strip()
             cell_obj = nbformat.v4.new_markdown_cell(cell_contents)
 
