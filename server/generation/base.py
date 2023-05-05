@@ -29,7 +29,7 @@ class NotebookGenerator:
         variants = []
 
         for i in range(n):
-            file_name = f"{self.prefix}_VAR{i}.ipynb"
+            file_name = f"{self.prefix}_VAR{i+1}.ipynb"
 
             notebook = create_jupiter(SAMPLE_SRC)
 
