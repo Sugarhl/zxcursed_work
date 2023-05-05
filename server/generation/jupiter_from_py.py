@@ -1,5 +1,7 @@
 import nbformat
 
+from server.generation.linear import generate_linear_system_latex
+
 
 BEGIN_CELL = "BEGIN_CELL"
 END_CELL = "# END_CELL\n"
@@ -47,12 +49,24 @@ def create_jupiter(path_to_src: str):
 
 
 SAMPLE_SRC = "server/generation/samples/sample_work"
-SAMPLE_OUT = "server/generation/samples/sample.ipynb"
+SAMPLE_OUT = "server/generation/samples/results/sample.ipynb"
+
+SAMPLE_P1 = "server/generation/samples/sample_P1"
+SAMPLE_P1_OUT = "server/generation/samples/results/sample_P1.ipynb"
 
 
 def print_sample():
     notebook = create_jupiter(SAMPLE_SRC)
     with open(SAMPLE_OUT, "w") as f:
+        nbformat.write(notebook, f)
+
+    notebook = create_jupiter(SAMPLE_P1)
+
+    ind_task = generate_linear_system_latex()
+    cell_idx = len(notebook["cells"]) - 2
+    notebook["cells"][cell_idx]["source"] += f"\n{ind_task}\n"
+
+    with open(SAMPLE_P1_OUT, "w") as f:
         nbformat.write(notebook, f)
 
 

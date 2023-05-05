@@ -1,4 +1,5 @@
 import asyncio
+import os
 from typing import List
 import nbformat
 import rocksdb
@@ -7,6 +8,11 @@ from server.generation.base import Variant
 
 from server.storage.base_file_storage import FileStorage
 from server.validation.checks import file_check
+
+
+HOME = os.path.expanduser("~")
+ROOT = os.path.join(HOME, ".app_storage")
+STORAGE = os.path.join(ROOT, ".lab_man_storage.db")
 
 
 class RocksDBStorage(FileStorage):
@@ -19,7 +25,7 @@ class RocksDBStorage(FileStorage):
             async with cls._lock:
                 if cls._instance is None:
                     cls._instance = rocksdb.DB(
-                        ".lab_man_storage.db",
+                        STORAGE,
                         rocksdb.Options(create_if_missing=True),
                     )
         return cls._instance

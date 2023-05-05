@@ -3,6 +3,7 @@ from typing import List
 
 
 from server.generation.base import GenType, NotebookGenerator, Variant
+from server.generation.gen_1 import Practice_1
 from server.models.lab import Lab
 from server.models.group import Group
 from server.models.student import Student
@@ -12,6 +13,7 @@ from server.storage.rocks_db_storage import save_variants
 HOME = os.path.expanduser("~")
 ROOT = os.path.join(HOME, ".app_storage")
 BASE_DIR = os.path.join(ROOT, "base")
+P1_DIR = os.path.join(ROOT, "P1")
 
 
 def get_generator_by_type(type: GenType, prefix: str):
@@ -20,6 +22,9 @@ def get_generator_by_type(type: GenType, prefix: str):
 
     elif type == GenType.NOT_BASE:
         return NotebookGenerator(prefix=prefix, directory=BASE_DIR + prefix)
+
+    elif type == GenType.PRACTICE_1:
+        return Practice_1(prefix=prefix, directory=P1_DIR + prefix)
 
 
 async def generate_for_group(

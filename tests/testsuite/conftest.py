@@ -292,7 +292,7 @@ def test_lab_with_group(test_group, test_db_session):
             deadline=datetime.now(),
             group_id=group.id,
             tutor_id=tutor.id,
-            generator_type=GenType.BASE,
+            generator_type=GenType.PRACTICE_1,
         )
 
         test_db_session.add(lab)

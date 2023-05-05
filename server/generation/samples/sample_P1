@@ -1,0 +1,225 @@
+# BEGIN_CELL MD
+"""
+
+Копия блокнота "Alg_1_2021_22_tasks.ipynb"
+# Практическое занятие 1
+# Компьютерный практикум по алгебре на Python
+
+https://docs.sympy.org/latest/tutorial/intro.html
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# Вначале для простоты будем подключать модуль sympy целиком
+from sympy import *
+
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+## Действия с числами, числовые выражения
+Об основных типах данных Python 3.10 читайте здесь:
+https://docs.python.org/3/reference/datamodel.html#index-19
+
+Сейчас нам понадобятся типы:
+
+int - целое число (насколько большим оно может быть, зависит только от объема доступной памяти)
+
+float - вещественное число (double precision floating point numbers)
+
+### Задание 1.
+Вычислите значение выражения
+$$
+3\left(2^{4}+6\sin\frac{\pi}{4}-5\sqrt{2}\right)
+$$
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+
+## Символы, символьные выражения
+Для аналитических преобразований в sympy используется класс Symbol
+
+https://docs.sympy.org/latest/modules/core.html?highlight=symbol#module-sympy.core.symbol
+
+В этом классе есть метод Symbol для создания одного символа.
+###  Задание 2.
+Создайте символ $t$ и составьте выражение $\frac{\sqrt{t}+t^3}{t-1}$
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+## Операции с символьными выражениями: simplify, expand,factor,collect
+#### simplify
+используется для упрощения выражения
+#### expand 
+используется для раскрытия скобок
+#### factor 
+для разложения на множители
+#### collect 
+для группировки по степеням переменной
+###  Задание 3.
+Упростите выражение
+$$
+\frac{(u+v)^2-4uv}{u-v}+2v-1
+$$
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+###  Задание 4.
+Раскройте скобки в выражении $(a_1+a_2+a_3)^3-(a_1-a_2)^2$
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+###  Задание 5.
+Разложите на множители
+$2u^4+3u^3v-2u^2v^2-2u^2v-3uv^2+2v^3$
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+###  Задание 6.
+Сгруппируйте выражение из Задания 5 по степеням $u$.
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+## Списки и кортежи
+Нам понадобятся два итерируемых типа
+
+#### списки list
+изменяемый тип
+#### кортежи tuple
+неизменяемый тип
+
+### Задание 7
+Создайте список $Powers$ из трех кортежей, состоящих из символов $x$, $y$ и $z$ в степени, равной номеру кортежа в списке.
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+### Задание 8
+В списке Powers Задания 7 заменить $(x^2,y^2,z^2)$ на (0,0,0).
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+## Матрицы
+### Задание 9
+Составить матрицу  $A_{3\times 4}$ из чисел вида $3k+1$, $k=1,2,...$:
+$$
+A=
+\left(
+\begin{matrix}
+4& 7& 10& 13\\
+16& 19& 22& 25\\
+28& 31& 34& 37
+\end{matrix}
+\right)
+$$
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+### Задание 10
+В матрице А задания 9 удалить вторую строку и вставить третий столбец между первым и вторым (сам третий столбец не удалять!), должно получиться
+$$
+A=
+\left(
+\begin{matrix}
+4& 10& 7& 10& 13\\
+28& 34& 31& 34& 37
+\end{matrix}
+\right)
+$$
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
+
+# BEGIN_CELL MD
+"""
+### Индивидуальное задание
+Составить матрицу левой части СЛАУ, вектор-столбец переменных, вектор-столбец правой части, вектор-столбец $X_0$. Показать, что $X_0$ является решением данной СЛАУ.
+
+N2
+
+"""
+# END_CELL
+
+# BEGIN_CELL CODE
+
+# YOUR CODE HERE :)
+
+# END_CELL
