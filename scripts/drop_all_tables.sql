@@ -6,3 +6,4 @@ DROP TABLE IF EXISTS lab_management.lab_var CASCADE;
 DROP TABLE IF EXISTS lab_management.login_creds CASCADE;
 DROP TABLE IF EXISTS lab_management.student CASCADE;
 DROP TABLE IF EXISTS lab_management.tutor CASCADE;
+DROP TABLE IF EXISTS lab_management.group CASCADE;

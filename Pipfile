@@ -34,6 +34,7 @@ black = "*"
 python-rocksdb = "*"
 numpy = "*"
 sympy = "*"
+locust = "*"
 
 [requires]
 python_version = "3.10"
