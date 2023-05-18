@@ -67,10 +67,10 @@ async def get_lab_solutions_by_lab_variant_id_checked(
 
 
 async def update_lab_solution(
-    db: AsyncSession, lab_solution_id: int, lab_solution_data: dict
+    db: AsyncSession, id: int, diff_data: dict
 ) -> LabSolution:
-    lab_solution = await get_lab_solution(db, lab_solution_id)
-    for key, value in lab_solution_data.items():
+    lab_solution = await get_lab_solution_checked(db, id)
+    for key, value in diff_data.items():    
         setattr(lab_solution, key, value)
     await db.commit()
     await db.refresh(lab_solution)

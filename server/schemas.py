@@ -113,3 +113,9 @@ class LabSolution(BaseModel):
     lab_variant_id: int
     filename: str
     file_key: str
+
+
+class LabSolutionMark(BaseModel):
+    solution_id: int
+    mark: int
+    comment: str

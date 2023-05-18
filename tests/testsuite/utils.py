@@ -41,6 +41,7 @@ def assign_variants(
             variant_number=i,
             variant_filename=variant.file_name,
             file_key=variant.key,
+            tutor_for_check_id=lab.tutor_id,
         )
         db.add(lab_variant)
         db.commit()

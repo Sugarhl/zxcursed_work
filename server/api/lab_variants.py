@@ -44,6 +44,7 @@ async def assign_variants(
             "variant_number": i,
             "variant_filename": variant.file_name,
             "file_key": variant.key,
+            "tutor_for_check_id": lab.tutor_id,
         }
 
         lab_variant = await create_lab_variant_from_dict(db, lab_variant_data)
