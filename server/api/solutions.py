@@ -75,7 +75,7 @@ async def upload_solution(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-# покрыть тестами
+#  TODO make tests
 @router.get(
     "/get",
     status_code=status.HTTP_201_CREATED,
@@ -102,7 +102,7 @@ async def get_solution(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-# покрыть тестами
+#  TODO make tests
 @router.post(
     "/mark",
     status_code=status.HTTP_201_CREATED,
