@@ -1,8 +1,11 @@
 import pytest
 
 from httpx import AsyncClient
+from server.schemas import LabVariant
 from server.storage.rocks_db_storage import RocksDBStorage
 from server.utils import UserType
+
+from server.models.lab_variant import LabVariant as LabVarDB
 
 
 pytestmark = pytest.mark.anyio
@@ -165,7 +168,7 @@ async def test_upload_solution_unsupported_file_type(
 async def test_upload_solution_missing_file(
     client: AsyncClient, test_vars_with_group, get_token
 ):
-    lab, _, students, lab_variants = await test_vars_with_group()
+    _, _, students, lab_variants = await test_vars_with_group()
 
     lab_variant = lab_variants[0]
     token = get_token(students[0].id, UserType.STUDENT)
@@ -261,5 +264,91 @@ async def test_get_solution_missing_solution_id(client: AsyncClient, test_studen
     _, token = test_student()
     response = await client.get(
         "/solution/get", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_mark_solution(
+    client: AsyncClient, test_vars_with_group, get_token, test_solution, test_db_session
+):
+    _, tutor, _, lab_variants = await test_vars_with_group()
+
+    lab_variant = lab_variants[0]
+    token = get_token(tutor.id, UserType.TUTOR)
+
+    solution = await test_solution(lab_variant)
+
+    response = await client.post(
+        "/solution/mark",
+        json={"solution_id": solution.id, "mark": 9},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 202
+
+    marked_solution = response.json()
+    assert marked_solution["id"] == solution.id
+    assert marked_solution["tutor_comment"] is None
+    assert marked_solution["tutor_mark"] == 9
+
+    response = await client.post(
+        "/solution/mark",
+        json={"solution_id": solution.id, "mark": 9, "comment": "comment"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 202
+
+    marked_solution = response.json()
+    assert marked_solution["id"] == solution.id
+    assert marked_solution["tutor_comment"] == "comment"
+    assert marked_solution["tutor_mark"] == 9
+    assert marked_solution["lab_variant_id"] == lab_variant.id
+
+    variant = test_db_session.get(LabVarDB, lab_variant.id)
+    assert variant.tutor_for_check_id == tutor.id
+
+
+@pytest.mark.anyio
+async def test_mark_solution_unauthorized_access(client: AsyncClient):
+    response = await client.post("/solution/mark", json={"solution_id": 123, "mark": 9})
+    assert response.status_code == 403
+
+
+@pytest.mark.anyio
+async def test_mark_solution_unauthorized_user_type(
+    client: AsyncClient, test_vars_with_group, get_token, test_solution
+):
+    _, _, students, lab_variants = await test_vars_with_group()
+
+    lab_variant = lab_variants[0]
+    token = get_token(students[0].id, UserType.STUDENT)
+
+    solution = await test_solution(lab_variant)
+    response = await client.post(
+        "/solution/mark",
+        json={"solution_id": solution.id, "mark": 9},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.anyio
+async def test_mark_solution_invalid_solution_id(client: AsyncClient, test_tutor):
+    _, token = test_tutor()
+    response = await client.post(
+        "/solution/mark",
+        json={"solution_id": "invalid_id", "mark": 9},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_mark_solution_invalid_mark(client: AsyncClient, test_tutor):
+    _, token = test_tutor()
+    response = await client.post(
+        "/solution/mark",
+        json={"solution_id": 456, "mark": "invalid_mark"},
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 422

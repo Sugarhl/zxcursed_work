@@ -16,6 +16,15 @@ async def create_lab_variant_from_dict(
     return lab_variant_obj
 
 
+async def update_lab_variant(db: AsyncSession, id: int, diff_data: dict) -> LabVariant:
+    lab_variant = await get_lab_variant_checked(db, id)
+    for key, value in diff_data.items():
+        setattr(lab_variant, key, value)
+    await db.commit()
+    await db.refresh(lab_variant)
+    return lab_variant
+
+
 async def get_lab_variant(
     db: AsyncSession, lab_variant_id: int
 ) -> Optional[LabVariant]:

@@ -125,4 +125,4 @@ class LabSolution(BaseModel):
 class LabSolutionMark(BaseModel):
     solution_id: int
     mark: int
-    comment: str
+    comment: Optional[str]

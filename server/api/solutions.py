@@ -3,13 +3,12 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
-from server.CRUD.lab_variant import get_lab_variant_checked
+from server.CRUD.lab_variant import get_lab_variant_checked, update_lab_variant
 
 
 import server.schemas as schemas
 from server.CRUD.solution import (
     create_lab_solution,
-    get_lab_solution,
     get_lab_solution_checked,
     update_lab_solution,
 )
@@ -24,6 +23,7 @@ from server.validation.checks import (
     file_ext_check,
     lab_var_check_access,
     student_access_check,
+    tutor_access_check,
     tutor_check,
 )
 
@@ -69,9 +69,8 @@ async def upload_solution(
     except ValidationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
-@router.get(
-    "/get", status_code=status.HTTP_200_OK, response_model=schemas.LabSolution
-)
+
+@router.get("/get", status_code=status.HTTP_200_OK, response_model=schemas.LabSolution)
 async def get_solution(
     solution_id: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer),
@@ -94,7 +93,6 @@ async def get_solution(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
 
-#  TODO make tests
 @router.post(
     "/mark", status_code=status.HTTP_202_ACCEPTED, response_model=schemas.LabSolution
 )
@@ -105,7 +103,7 @@ async def mark_solution(
 ):
     try:
         tutor, user_type = await auth_by_token(db=db, auth=auth)
-        tutor_check(user_type)
+        tutor_access_check(user_type)
 
         solution_diff = {
             "tutor_comment": solution_mark.comment,
@@ -117,6 +115,11 @@ async def mark_solution(
             id=solution_mark.solution_id,
             diff_data=solution_diff,
         )
+
+        await update_lab_variant(
+            db=db, id=lab_solution.id, diff_data={"tutor_for_check_id": tutor.id}
+        )
+
         return lab_solution
 
     except ValidationError as e:
