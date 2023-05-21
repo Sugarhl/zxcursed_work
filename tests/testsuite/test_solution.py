@@ -1,11 +1,9 @@
 import pytest
 
 from httpx import AsyncClient
-from server.schemas import LabVariant
 from server.storage.rocks_db_storage import RocksDBStorage
 from server.utils import UserType
-
-from server.models.lab_variant import LabVariant as LabVarDB
+from server.models.lab_variant import LabVariant
 
 
 pytestmark = pytest.mark.anyio
@@ -304,7 +302,7 @@ async def test_mark_solution(
     assert marked_solution["tutor_mark"] == 9
     assert marked_solution["lab_variant_id"] == lab_variant.id
 
-    variant = test_db_session.get(LabVarDB, lab_variant.id)
+    variant = test_db_session.get(LabVariant, lab_variant.id)
     assert variant.tutor_for_check_id == tutor.id
 
 
