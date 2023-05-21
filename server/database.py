@@ -15,7 +15,7 @@ from server.models.user import User
 from server.config import DATABASE_URL
 
 print(DATABASE_URL)
-async_engine = create_async_engine(DATABASE_URL, future=True, echo=True)
+async_engine = create_async_engine(DATABASE_URL, future=True, echo=False)
 async_database = databases.Database(DATABASE_URL)
 
 session_factory = sessionmaker(

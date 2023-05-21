@@ -135,6 +135,6 @@ dmypy.json
 # env
 .env*
 .env.test
-
+.out
 
 *lab_man_storage.db/*

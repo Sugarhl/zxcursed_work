@@ -17,6 +17,6 @@ class User(Base):
     )
     user_id = Column(Integer, nullable=False)
     user_type = Column(Enum(UserType), nullable=False, index=True)
-    username = Column(String(255), nullable=False, unique=True)
+    username = Column(String(255), nullable=False, unique=True, index=True)
     password = Column(String(255), nullable=False)
     salt = Column(String(255), nullable=False)

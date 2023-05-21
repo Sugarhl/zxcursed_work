@@ -24,7 +24,6 @@ from server.validation.checks import (
     lab_var_check_access,
     student_access_check,
     tutor_access_check,
-    tutor_check,
 )
 
 router = APIRouter()
