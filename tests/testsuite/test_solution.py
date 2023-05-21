@@ -33,7 +33,7 @@ async def test_upload_solution(client: AsyncClient, test_vars_with_group, get_to
     )
 
     assert response.status_code == 201
-    assert response.json()["filename"] == "test_solution.ipynb"
+    assert response.json()["solution_filename"] == "test_solution.ipynb"
     assert response.json()["lab_variant_id"] == lab_variant.id
 
     file_key = response.json()["file_key"]
@@ -181,4 +181,85 @@ async def test_upload_solution_missing_file(
         data=solution_data,
     )
 
+    assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_get_solution(
+    client: AsyncClient, test_vars_with_group, get_token, test_solution
+):
+    lab, _, students, lab_variants = await test_vars_with_group()
+
+    lab_variant = lab_variants[0]
+    token = get_token(students[0].id, UserType.STUDENT)
+
+    solution = await test_solution(lab_variant)
+
+    response = await client.get(
+        f"/solution/get?solution_id={solution.id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+
+    response.json()["id"] == solution.id
+    response.json()["file_key"] == solution.file_key
+
+
+@pytest.mark.anyio
+async def test_get_solution_invalid_solution_id(client: AsyncClient, test_student):
+    _, token = test_student()
+    response = await client.get(
+        "/solution/get?solution_id=invalid_id",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 422
+
+
+@pytest.mark.anyio
+async def test_get_solution_by_tutor(
+    client: AsyncClient, test_vars_with_group, get_token, test_solution
+):
+    _, tutor, _, lab_variants = await test_vars_with_group()
+    lab_variant = lab_variants[0]
+
+    solution = await test_solution(lab_variant)
+
+    teacher_token = get_token(tutor.id, UserType.TUTOR)
+    response = await client.get(
+        f"/solution/get?solution_id={solution.id}",
+        headers={"Authorization": f"Bearer {teacher_token}"},
+    )
+    assert response.status_code == 200
+
+
+@pytest.mark.anyio
+async def test_get_solution_unauthorized_lab_variant_access(
+    client: AsyncClient, test_vars_with_group, get_token, test_solution
+):
+    _, _, students, lab_variants = await test_vars_with_group()
+    lab_variant = lab_variants[0]
+    token = get_token(students[0].id, UserType.STUDENT)
+
+    solution = await test_solution(lab_variant)
+
+    response = await client.get(
+        f"/solution/get?solution_id={solution.id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+
+    unauthorized_token = get_token(students[1].id, UserType.STUDENT)
+    response = await client.get(
+        f"/solution/get?solution_id={solution.id}",
+        headers={"Authorization": f"Bearer {unauthorized_token}"},
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.anyio
+async def test_get_solution_missing_solution_id(client: AsyncClient, test_student):
+    _, token = test_student()
+    response = await client.get(
+        "/solution/get", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == 422

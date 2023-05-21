@@ -64,21 +64,13 @@ async def upload_solution(
             student_comment=comment,
         )
 
-        return schemas.LabSolution(
-            id=solution_db.id,
-            lab_variant_id=solution_db.lab_variant_id,
-            filename=solution_db.solution_filename,
-            file_key=solution_db.file_key,
-        )
+        return solution_db
 
     except ValidationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
 
-
-#  TODO make tests
 @router.get(
-    "/get",
-    status_code=status.HTTP_201_CREATED,
+    "/get", status_code=status.HTTP_200_OK, response_model=schemas.LabSolution
 )
 async def get_solution(
     solution_id: int,
@@ -104,8 +96,7 @@ async def get_solution(
 
 #  TODO make tests
 @router.post(
-    "/mark",
-    status_code=status.HTTP_201_CREATED,
+    "/mark", status_code=status.HTTP_202_ACCEPTED, response_model=schemas.LabSolution
 )
 async def mark_solution(
     solution_mark: schemas.LabSolutionMark,

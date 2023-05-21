@@ -111,8 +111,15 @@ class LabVariant(BaseModel):
 class LabSolution(BaseModel):
     id: int
     lab_variant_id: int
-    filename: str
+    solution_filename: str
     file_key: str
+    auto_mark: Optional[int]
+    tutor_mark: Optional[int]
+    tutor_comment: Optional[str]
+    student_comment: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 
 class LabSolutionMark(BaseModel):
