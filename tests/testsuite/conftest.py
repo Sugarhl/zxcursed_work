@@ -29,6 +29,11 @@ from tests.testsuite.utils import (
 )
 
 
+# def pytest_collection_modifyitems(config, items):
+#     for item in items:
+#         item.add_marker(pytest.mark.parametrize("run_number", range(5)))
+
+
 @pytest.fixture(
     params=[
         pytest.param(("asyncio", {"use_uvloop": True}), id="asyncio+uvloop"),

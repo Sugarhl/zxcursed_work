@@ -1,6 +1,6 @@
 import nbformat
 
-from server.generation.linear import generate_linear_system_latex
+from server.tasks.linear import generate_linear_system_latex
 
 
 BEGIN_CELL = "BEGIN_CELL"

@@ -5,7 +5,7 @@ from typing import List
 from server.generation.base import NotebookGenerator, Variant
 
 from server.generation.jupiter_from_py import create_jupiter
-from server.generation.linear import generate_linear_system_latex
+from server.tasks.linear import generate_linear_system_latex
 
 
 SAMPLE_P1 = "server/generation/samples/sample_P1"
