@@ -150,41 +150,40 @@ async def test_get_student_labs(client: AsyncClient, test_vars_with_group, get_t
         assert response.status_code == 200
         student_labs = [LabOut(**variant) for variant in response.json()]
         assert len(student_labs) == 1
+        assert student_labs[0].id == lab.id
 
 
 @pytest.mark.anyio
 async def test_get_student_labs_negative(
     client: AsyncClient, test_vars_with_group, get_token, test_student
 ):
-    lab, tutor, students, _ = await test_vars_with_group()
+    _, tutor, _, _ = await test_vars_with_group()
 
-    for student in students:
+    tutor_token = get_token(tutor.id, UserType.TUTOR)
+    response = await client.get(
+        "lab/get/student/all", headers={"Authorization": f"Bearer {tutor_token}"}
+    )
+    assert response.status_code == 403
 
-        invalid_token = "invalid_token"
-        response = await client.get(
-            "lab/get/student/all", headers={"Authorization": f"Bearer {invalid_token}"}
-        )
-        assert response.status_code == 401
+    invalid_token = "invalid_token"
+    response = await client.get(
+        "lab/get/student/all", headers={"Authorization": f"Bearer {invalid_token}"}
+    )
+    assert response.status_code == 401
 
-        tutor_token = get_token(tutor.id, UserType.TUTOR)
-        response = await client.get(
-            "lab/get/student/all", headers={"Authorization": f"Bearer {tutor_token}"}
-        )
-        assert response.status_code == 403
-
-        _, empty_student_token = test_student()
-        response = await client.get(
-            "lab/get/student/all",
-            headers={"Authorization": f"Bearer {empty_student_token}"},
-        )
-        assert response.status_code == 200
-        student_labs = [LabOut(**variant) for variant in response.json()]
-        assert len(student_labs) == 0
+    _, empty_student_token = test_student()
+    response = await client.get(
+        "lab/get/student/all",
+        headers={"Authorization": f"Bearer {empty_student_token}"},
+    )
+    assert response.status_code == 200
+    student_labs = [LabOut(**variant) for variant in response.json()]
+    assert len(student_labs) == 0
 
 
 @pytest.mark.anyio
 async def test_get_tutor_labs(client: AsyncClient, test_vars_with_group, get_token):
-    lab, tutor, students, _ = await test_vars_with_group()
+    lab, tutor, _, _ = await test_vars_with_group()
 
     token = get_token(tutor.id, UserType.TUTOR)
 
@@ -194,3 +193,32 @@ async def test_get_tutor_labs(client: AsyncClient, test_vars_with_group, get_tok
     assert response.status_code == 200
     labs = [LabOut(**variant) for variant in response.json()]
     assert len(labs) == 1
+    assert labs[0].id == lab.id
+
+
+async def test_get_tutor_labs_negative(
+    client: AsyncClient, test_vars_with_group, get_token, test_tutor
+):
+    lab, tutor, students, _ = await test_vars_with_group()
+
+    for student in students:
+        tutor_token = get_token(student.id, UserType.STUDENT)
+        response = await client.get(
+            "lab/get/tutor/all", headers={"Authorization": f"Bearer {tutor_token}"}
+        )
+        assert response.status_code == 403
+
+    invalid_token = "invalid_token"
+    response = await client.get(
+        "lab/get/tutor/all", headers={"Authorization": f"Bearer {invalid_token}"}
+    )
+    assert response.status_code == 401
+
+    _, empty_token = test_tutor()
+    response = await client.get(
+        "lab/get/tutor/all",
+        headers={"Authorization": f"Bearer {empty_token}"},
+    )
+    assert response.status_code == 200
+    student_labs = [LabOut(**variant) for variant in response.json()]
+    assert len(student_labs) == 0
