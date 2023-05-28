@@ -4,8 +4,10 @@ import pytest
 
 from server.generation.generate import GenType
 from server.models.lab import Lab
-from server.schemas import LabCreate
+from server.schemas import LabCreate, LabOut
 from fastapi.encoders import jsonable_encoder
+
+from server.utils import UserType
 
 pytestmark = pytest.mark.anyio
 
@@ -38,7 +40,6 @@ async def test_lab_create(
 
     assert response.status_code == 201
 
-    # Check that the lab was created in the database
     lab_id = response.json()["lab_id"]
     lab_db = test_db_session.get(Lab, lab_id)
     assert lab_db.id == lab_id
@@ -133,3 +134,63 @@ async def test_lab_create_non_exist_group(client: AsyncClient, test_tutor):
     )
 
     assert response.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_get_student_labs(client: AsyncClient, test_vars_with_group, get_token):
+    lab, _, students, _ = await test_vars_with_group()
+
+    for student in students:
+        student_token = get_token(student.id, UserType.STUDENT)
+
+        response = await client.get(
+            "lab/get/student/all", headers={"Authorization": f"Bearer {student_token}"}
+        )
+
+        assert response.status_code == 200
+        student_labs = [LabOut(**variant) for variant in response.json()]
+        assert len(student_labs) == 1
+
+
+@pytest.mark.anyio
+async def test_get_student_labs_negative(
+    client: AsyncClient, test_vars_with_group, get_token, test_student
+):
+    lab, tutor, students, _ = await test_vars_with_group()
+
+    for student in students:
+
+        invalid_token = "invalid_token"
+        response = await client.get(
+            "lab/get/student/all", headers={"Authorization": f"Bearer {invalid_token}"}
+        )
+        assert response.status_code == 401
+
+        tutor_token = get_token(tutor.id, UserType.TUTOR)
+        response = await client.get(
+            "lab/get/student/all", headers={"Authorization": f"Bearer {tutor_token}"}
+        )
+        assert response.status_code == 403
+
+        _, empty_student_token = test_student()
+        response = await client.get(
+            "lab/get/student/all",
+            headers={"Authorization": f"Bearer {empty_student_token}"},
+        )
+        assert response.status_code == 200
+        student_labs = [LabOut(**variant) for variant in response.json()]
+        assert len(student_labs) == 0
+
+
+@pytest.mark.anyio
+async def test_get_tutor_labs(client: AsyncClient, test_vars_with_group, get_token):
+    lab, tutor, students, _ = await test_vars_with_group()
+
+    token = get_token(tutor.id, UserType.TUTOR)
+
+    response = await client.get(
+        "lab/get/tutor/all", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
+    labs = [LabOut(**variant) for variant in response.json()]
+    assert len(labs) == 1

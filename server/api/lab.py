@@ -3,13 +3,19 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.CRUD.group import get_group_checked
+from server.CRUD.lab_variant import get_all_lab_variants_by_student_id
 from server.generation.base import GenType
 
 import server.schemas as schemas
-from server.CRUD.lab import create_lab, get_all_labs, get_all_labs_by_tutor_id
+from server.CRUD.lab import (
+    create_lab,
+    get_all_labs,
+    get_all_labs_by_tutor_id,
+    get_labs_checked,
+)
 from server.database import get_db
 from server.token import auth_by_token
-from server.validation.checks import tutor_access_check
+from server.validation.checks import student_access_check, tutor_access_check
 
 router = APIRouter()
 bearer = HTTPBearer()
@@ -45,6 +51,23 @@ async def get_all_tutor_labs_route(
         tutor_access_check(user_type)
         labs = await get_all_labs_by_tutor_id(db, tutor.id)
 
+        return labs
+
+    except ValidationError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+
+
+@router.get("/get/student/all", response_model=list[schemas.LabOut])
+async def get_all_student_labs_route(
+    auth: HTTPAuthorizationCredentials = Depends(bearer),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        student, user_type = await auth_by_token(db=db, auth=auth)
+        student_access_check(user_type)
+        lab_variants = await get_all_lab_variants_by_student_id(db, student.id)
+        lab_ids = list(map(lambda x: x.lab_id, lab_variants))
+        labs = await get_labs_checked(db=db, lab_ids=lab_ids)
         return labs
 
     except ValidationError as e:

@@ -154,3 +154,492 @@ WARNING:  Invalid HTTP request received.
 INFO:     64.227.172.245:39742 - "GET / HTTP/1.1" 200 OK
 WARNING:  Invalid HTTP request received.
 INFO:     64.227.172.245:39772 - "GET /api/islogged HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     8.219.191.24:59598 - "GET / HTTP/1.1" 200 OK
+INFO:     8.219.191.24:60470 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     8.219.191.24:60404 - "GET /sitemap.xml HTTP/1.1" 404 Not Found
+INFO:     95.214.55.244:38486 - "GET / HTTP/1.1" 200 OK
+INFO:     205.210.31.150:62168 - "GET / HTTP/1.1" 200 OK
+INFO:     167.94.138.33:54138 - "GET / HTTP/1.1" 200 OK
+INFO:     167.94.138.33:57396 - "GET / HTTP/1.1" 200 OK
+INFO:     167.94.138.33:39420 - "PRI %2A HTTP/2.0" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.33:46414 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     205.210.31.106:61404 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.197.138:58207 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.197.138:15525 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     64.62.197.139:26701 - "GET http%3A//api.ipify.org/?format=json HTTP/1.1" 404 Not Found
+INFO:     64.62.197.140:42503 - "CONNECT www.shadowserver.org%3A443 HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     142.93.78.125:56064 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     142.93.78.125:56078 - "GET /api/islogged HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     64.227.126.135:59364 - "GET / HTTP/1.1" 200 OK
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 428, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 78, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/fastapi/applications.py", line 276, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/fastapi/middleware/asyncexitstack.py", line 21, in __call__
+    raise e
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/routing.py", line 69, in app
+    await response(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/responses.py", line 164, in __call__
+    await send(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 65, in sender
+    await send(message)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/errors.py", line 159, in _send
+    await send(message)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 512, in send
+    output = self.conn.send(event)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/h11/_connection.py", line 512, in send
+    data_list = self.send_with_data_passthrough(event)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/h11/_connection.py", line 537, in send_with_data_passthrough
+    self._process_event(self.our_role, event)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/h11/_connection.py", line 272, in _process_event
+    self._cstate.process_event(role, type(event), server_switch_event)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/h11/_state.py", line 293, in process_event
+    self._fire_event_triggered_transitions(role, _event_type)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/h11/_state.py", line 311, in _fire_event_triggered_transitions
+    raise LocalProtocolError(
+h11._util.LocalProtocolError: can't handle event type Response when role=SERVER and state=MUST_CLOSE
+INFO:     64.227.126.135:59470 - "GET / HTTP/1.1" 200 OK
+INFO:     64.227.126.135:59562 - "GET /.vscode/sftp.json HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:59642 - "GET /about HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:59700 - "GET /debug/default/view?panel=config HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:59778 - "GET /v2/_catalog HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:59868 - "GET /ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:59954 - "GET /server-status HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60044 - "GET /login.action HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60156 - "GET /_all_dbs HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60274 - "GET /.DS_Store HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60362 - "GET /.env HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60444 - "GET /.git/config HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60528 - "GET /s/435313e24353e2339313e2033313/_/%3B/META-INF/maven/com.atlassian.jira/jira-webapp-dist/pom.properties HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60600 - "GET /config.json HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60690 - "GET /telescope/requests HTTP/1.1" 404 Not Found
+INFO:     64.227.126.135:60760 - "GET /?rest_route=/wp/v2/users/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     54.153.111.127:47150 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     98.154.95.98:60536 - "GET / HTTP/1.1" 200 OK
+INFO:     167.71.229.198:59208 - "GET /aaa9 HTTP/1.1" 404 Not Found
+INFO:     167.71.229.198:59220 - "GET /aab8 HTTP/1.1" 404 Not Found
+INFO:     167.71.229.198:59234 - "GET / HTTP/1.1" 200 OK
+INFO:     62.84.101.72:51372 - "GET / HTTP/1.1" 200 OK
+INFO:     62.84.101.72:51372 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     62.84.101.72:51372 - "GET /docs HTTP/1.1" 200 OK
+INFO:     62.84.101.72:51372 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     62.84.101.72:51372 - "POST /registration/register/student HTTP/1.1" 400 Bad Request
+INFO:     62.84.101.72:51372 - "POST /registration/register/student HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 709, in _start_transaction
+    self._transaction = self._connection.transaction(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/asyncpg/connection.py", line 274, in transaction
+    self._check_open()
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/asyncpg/connection.py", line 1399, in _check_open
+    raise exceptions.InterfaceError('connection is closed')
+asyncpg.exceptions._base.InterfaceError: connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1905, in _execute_context
+    self.dialect.do_execute(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 479, in execute
+    self._adapt_connection.await_(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 68, in await_only
+    return current.driver.switch(awaitable)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 121, in greenlet_spawn
+    value = await result
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 408, in _prepare_and_execute
+    await adapt_connection._start_transaction()
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 716, in _start_transaction
+    self._handle_exception(error)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 682, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.InterfaceError: <class 'asyncpg.exceptions._base.InterfaceError'>: connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/uvicorn/protocols/http/h11_impl.py", line 428, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 78, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/fastapi/applications.py", line 276, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/fastapi/middleware/asyncexitstack.py", line 21, in __call__
+    raise e
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/fastapi/routing.py", line 237, in app
+    raw_response = await run_endpoint_function(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/fastapi/routing.py", line 163, in run_endpoint_function
+    return await dependant.call(**values)
+  File "/home/ukushuri/zxcursed_work/server/api/registration.py", line 30, in register
+    await check_user_exists(db=db, user_type=user_type, user_in=user_in)
+  File "/home/ukushuri/zxcursed_work/server/validation/registration.py", line 16, in check_user_exists
+    existing_user = await get_user_by_username(db, user_in.username)
+  File "/home/ukushuri/zxcursed_work/server/CRUD/user.py", line 36, in get_user_by_username
+    result = await db.execute(stmt)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/ext/asyncio/session.py", line 214, in execute
+    result = await greenlet_spawn(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 126, in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 1717, in execute
+    result = conn._execute_20(statement, params or {}, execution_options)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1710, in _execute_20
+    return meth(self, args_10style, kwargs_10style, execution_options)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 334, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1577, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1948, in _execute_context
+    self._handle_dbapi_exception(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2129, in _handle_dbapi_exception
+    util.raise_(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1905, in _execute_context
+    self.dialect.do_execute(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 736, in do_execute
+    cursor.execute(statement, parameters)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 479, in execute
+    self._adapt_connection.await_(
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 68, in await_only
+    return current.driver.switch(awaitable)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 121, in greenlet_spawn
+    value = await result
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 408, in _prepare_and_execute
+    await adapt_connection._start_transaction()
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 716, in _start_transaction
+    self._handle_exception(error)
+  File "/home/ukushuri/.local/share/virtualenvs/zxcursed_work-KQXCvGA4/lib/python3.10/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 682, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: connection is closed
+[SQL: SELECT lab_management.login_creds.id, lab_management.login_creds.user_id, lab_management.login_creds.user_type, lab_management.login_creds.username, lab_management.login_creds.password, lab_management.login_creds.salt 
+FROM lab_management.login_creds 
+WHERE lab_management.login_creds.username = %s]
+[parameters: ('string',)]
+(Background on this error at: https://sqlalche.me/e/14/rvf5)

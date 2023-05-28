@@ -1,86 +1,74 @@
-Contents of server/validation/checks.py:
-
-Contents of server/validation/registration.py:
-
-Contents of server/CRUD/comment.py:
-
-Contents of server/CRUD/user.py:
-
-Contents of server/CRUD/tutor.py:
-
-Contents of server/CRUD/utils.py:
-
-Contents of server/CRUD/lab.py:
-
-Contents of server/CRUD/student.py:
-
-Contents of server/CRUD/group.py:
-
-Contents of server/CRUD/solution.py:
-
-Contents of server/CRUD/lab_variant.py:
-
-Contents of server/utils.py:
-
-Contents of server/storage/rocks_db_storage.py:
-
-Contents of server/storage/base_file_storage.py:
-
-Contents of server/api/solutions.py:
-
-Contents of server/api/template.py:
-
-Contents of server/api/lab_variants.py:
-
 Contents of server/api/lab.py:
-
-Contents of server/api/login.py:
-
-Contents of server/api/group.py:
-
-Contents of server/api/registration.py:
-
-Contents of server/api/files.py:
-
-Contents of server/config.py:
-
-Contents of server/token.py:
-
-Contents of server/models/lab_solution_comment.py:
-
-Contents of server/models/user.py:
-
-Contents of server/models/base.py:
-
-Contents of server/models/tutor.py:
-
-Contents of server/models/lab.py:
-
-Contents of server/models/student.py:
-
-Contents of server/models/group.py:
-
-Contents of server/models/lab_solution.py:
-
-Contents of server/models/lab_variant.py:
-
-Contents of server/main.py:
-
-Contents of server/generation/base.py:
-
-Contents of server/generation/generate.py:
-
-Contents of server/generation/linear.py:
-
-Contents of server/generation/samples/sample_P1:
-
-Contents of server/generation/samples/sample_work:
-
-Contents of server/generation/gen_1.py:
-
-Contents of server/generation/jupiter_from_py.py:
-
-Contents of server/schemas.py:
-
-Contents of server/database.py:
+  from fastapi import APIRouter, Depends, HTTPException, status
+  from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+  from pydantic import ValidationError
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from server.CRUD.group import get_group_checked
+  from server.generation.base import GenType
+  
+  import server.schemas as schemas
+  from server.CRUD.lab import create_lab, get_all_labs, get_all_labs_by_tutor_id
+  from server.database import get_db
+  from server.token import auth_by_token
+  from server.validation.checks import tutor_access_check
+  
+  router = APIRouter()
+  bearer = HTTPBearer()
+  
+  
+  @router.post("/create", status_code=status.HTTP_201_CREATED)
+  async def create_lab_route(
+      lab: schemas.LabCreate,
+      auth: HTTPAuthorizationCredentials = Depends(bearer),
+      db: AsyncSession = Depends(get_db),
+  ):
+      try:
+          tutor, user_type = await auth_by_token(db=db, auth=auth)
+  
+          tutor_access_check(user_type)
+  
+          await get_group_checked(db, lab.group_id)
+  
+          lab = await create_lab(db=db, lab=lab, tutor_id=tutor.id)
+          return {"lab_id": lab.id}
+  
+      except ValidationError as e:
+          raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+  
+  
+  @router.get("/get/tutor/all", response_model=list[schemas.LabOut])
+  async def get_all_tutor_labs_route(
+      auth: HTTPAuthorizationCredentials = Depends(bearer),
+      db: AsyncSession = Depends(get_db),
+  ):
+      try:
+          tutor, user_type = await auth_by_token(db=db, auth=auth)
+          tutor_access_check(user_type)
+          labs = await get_all_labs_by_tutor_id(db, tutor.id)
+  
+          return labs
+  
+      except ValidationError as e:
+          raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+  
+  
+  @router.get("/get/all", response_model=list[schemas.LabOut])
+  async def get_all_labs_route(
+      auth: HTTPAuthorizationCredentials = Depends(bearer),
+      db: AsyncSession = Depends(get_db),
+  ):
+      try:
+          await auth_by_token(db=db, auth=auth)
+  
+          labs = await get_all_labs(db)
+  
+          return labs
+  
+      except ValidationError as e:
+          raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.errors())
+  
+  
+  @router.get("/get/generators")
+  async def get_generators():
+      return {"generators": [generator.value for generator in GenType]}
 

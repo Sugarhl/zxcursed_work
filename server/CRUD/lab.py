@@ -29,6 +29,13 @@ async def get_lab_checked(db: AsyncSession, lab_id: int) -> Lab:
     return lab
 
 
+async def get_labs_checked(db: AsyncSession, lab_ids: List[int]) -> List[Lab]:
+    labs = []
+    for lab_id in lab_ids:
+        labs.append(await get_lab_checked(db=db, lab_id=lab_id))
+    return labs
+
+
 async def get_all_labs_by_tutor_id(db: AsyncSession, tutor_id: int) -> List[Lab]:
     labs = await db.execute(select(Lab).filter(Lab.tutor_id == tutor_id))
     return labs.scalars().all()

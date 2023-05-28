@@ -40,7 +40,7 @@ do
     file_type=$(file -b --mime-type "$file")
     if [[ $file_type == *"text"* ]]; then
         echo "Contents of $(sed "s|${HOME}/zxcursed_work/server/||" <<< $file):" >> "$result_file"
-        # sed -e 's/^/  /' "$file" >> "$result_file"
+        sed -e 's/^/  /' "$file" >> "$result_file"
         echo "" >> "$result_file"
     fi
 done
