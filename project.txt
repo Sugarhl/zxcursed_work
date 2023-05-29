@@ -1,16 +1,18 @@
-Router server/api/solutions.py:
+Router tests/testsuite/test_login.py:
 
-Router server/api/template.py:
+Router tests/testsuite/test_registration.py:
 
-Router server/api/lab_variants.py:
+Router tests/testsuite/test_file.py:
 
-Router server/api/lab.py:
+Router tests/testsuite/utils.py:
 
-Router server/api/login.py:
+Router tests/testsuite/test_lab_variants.py:
 
-Router server/api/group.py:
+Router tests/testsuite/test_lab.py:
 
-Router server/api/registration.py:
+Router tests/testsuite/test_solution.py:
 
-Router server/api/files.py:
+Router tests/testsuite/test_group.py:
+
+Router tests/testsuite/conftest.py:
 

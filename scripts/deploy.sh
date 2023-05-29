@@ -4,5 +4,5 @@ echo "Setting environment variables from .env file..."
 cp .env.prod .env
 
 echo "Starting FastAPI application using Uvicorn..."
-uvicorn server.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 10 --workers 3
+uvicorn server.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 10 
 

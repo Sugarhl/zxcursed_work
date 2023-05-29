@@ -1,6 +1,6 @@
 import io
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -69,3 +69,32 @@ async def get_solution_file(
         media_type="application/octet-stream",
         headers={"Content-Disposition": f'attachment; filename="{file_name}"'},
     )
+
+
+@router.get("/test/get", response_class=StreamingResponse)
+async def get_test_file(
+    file_key: str,
+    file_name: str,
+):
+    file_storage = RocksDBStorage()
+    file = await file_storage.get_file_checked(file_key)
+
+    return StreamingResponse(
+        io.BytesIO(file),
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f'attachment; filename="{file_name}"'},
+    )
+
+
+@router.post(
+    "/test/upload",
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_solution(
+    file: UploadFile = File(..., format=[".ipynb"]),
+):
+    file_content = await file.read()
+    storage = RocksDBStorage()
+    file_key = await storage.save_file(file_content)
+
+    return file_key

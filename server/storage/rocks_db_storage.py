@@ -1,4 +1,5 @@
 import asyncio
+from math import e
 import os
 from typing import List
 import nbformat
@@ -24,6 +25,8 @@ class RocksDBStorage(FileStorage):
         if cls._instance is None:
             async with cls._lock:
                 if cls._instance is None:
+                    if not os.path.exists(ROOT):
+                        os.makedirs(ROOT)
                     cls._instance = rocksdb.DB(
                         STORAGE,
                         rocksdb.Options(create_if_missing=True),
