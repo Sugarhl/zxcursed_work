@@ -2,13 +2,14 @@ from typing import List
 from server.generation.base import NotebookGenerator, Variant
 
 from server.generation.jupiter_from_py import create_jupiter
-from server.tasks.linear import generate_linear_system_latex
+
+from server.tasks.slae_with_parameter import generate_slae_with_param
 
 
-SAMPLE_P1 = "server/generation/samples/sample_P1"
+SAMPLE_P2 = "server/generation/samples/sample_P2"
 
 
-class Practice_1(NotebookGenerator):
+class Practice_2(NotebookGenerator):
     def __init__(self, prefix):
         self.prefix = prefix
 
@@ -18,11 +19,11 @@ class Practice_1(NotebookGenerator):
         for i in range(n):
             file_name = f"{self.prefix}_VAR{i+1}.ipynb"
 
-            notebook = create_jupiter(SAMPLE_P1)
+            notebook = create_jupiter(SAMPLE_P2)
 
-            ind_task = generate_linear_system_latex()
+            ind_task = generate_slae_with_param()
             cell_idx = len(notebook["cells"]) - 2
-            notebook["cells"][cell_idx]["source"] += f"\n \n {ind_task}\n"
+            notebook["cells"][cell_idx]["source"] += f"\n\n{ind_task}\n"
 
             variants.append(Variant(file_name=file_name, notebook=notebook))
 

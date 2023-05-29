@@ -4,6 +4,7 @@ from typing import List
 
 from server.generation.base import GenType, NotebookGenerator, Variant
 from server.generation.gen_1 import Practice_1
+from server.generation.gen_2 import Practice_2
 from server.models.lab import Lab
 from server.models.group import Group
 from server.models.student import Student
@@ -18,13 +19,11 @@ P1_DIR = os.path.join(ROOT, "P1")
 
 def get_generator_by_type(type: GenType, prefix: str):
     if type == GenType.BASE:
-        return NotebookGenerator(prefix=prefix, directory=BASE_DIR + prefix)
-
-    elif type == GenType.NOT_BASE:
-        return NotebookGenerator(prefix=prefix, directory=BASE_DIR + prefix)
-
+        return NotebookGenerator(prefix=prefix)
     elif type == GenType.PRACTICE_1:
-        return Practice_1(prefix=prefix, directory=P1_DIR + prefix)
+        return Practice_1(prefix=prefix)
+    elif type == GenType.PRACTICE_2:
+        return Practice_2(prefix=prefix)
 
 
 async def generate_for_group(

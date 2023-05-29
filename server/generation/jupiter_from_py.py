@@ -1,6 +1,7 @@
 import nbformat
 
 from server.tasks.linear import generate_linear_system_latex
+from server.tasks.slae_with_parameter import generate_slae_with_param
 
 
 BEGIN_CELL = "BEGIN_CELL"
@@ -56,6 +57,9 @@ SAMPLE_OUT = "server/generation/samples/results/sample.ipynb"
 SAMPLE_P1 = "server/generation/samples/sample_P1"
 SAMPLE_P1_OUT = "server/generation/samples/results/sample_P1.ipynb"
 
+SAMPLE_P2 = "server/generation/samples/sample_P2"
+SAMPLE_P2_OUT = "server/generation/samples/results/sample_P2.ipynb"
+
 
 def print_sample_base():
     notebook = create_jupiter(SAMPLE_SRC)
@@ -74,6 +78,18 @@ def print_sample_p1():
         nbformat.write(notebook, f)
 
 
+def print_sample_p2():
+    notebook = create_jupiter(SAMPLE_P2)
+
+    ind_task = generate_slae_with_param()
+    cell_idx = len(notebook["cells"]) - 2
+    notebook["cells"][cell_idx]["source"] += f"\n\n{ind_task}\n"
+
+    with open(SAMPLE_P2_OUT, "w") as f:
+        nbformat.write(notebook, f)
+
+
 def print_samples():
     print_sample_base()
     print_sample_p1()
+    print_sample_p2()

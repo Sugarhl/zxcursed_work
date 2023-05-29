@@ -39,8 +39,8 @@ find "$1" -type f -print0 | while read -d $'\0' file
 do
     file_type=$(file -b --mime-type "$file")
     if [[ $file_type == *"text"* ]]; then
-        echo "Contents of $(sed "s|${HOME}/zxcursed_work/server/||" <<< $file):" >> "$result_file"
-        sed -e 's/^/  /' "$file" >> "$result_file"
+        echo "Router $(sed "s|${HOME}/zxcursed_work/server/||" <<< $file):" >> "$result_file"
+        # sed -e 's/^/  /' "$file" >> "$result_file"
         echo "" >> "$result_file"
     fi
 done

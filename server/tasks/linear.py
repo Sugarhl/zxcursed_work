@@ -1,5 +1,5 @@
 import numpy as np
-from sympy import Eq, symbols, linsolve, latex
+from sympy import Eq, symbols, latex
 
 
 def generate_known_solution():
@@ -10,19 +10,6 @@ def generate_system(known_solution):
     A = np.random.randint(-10, 11, (3, 5))
     B = np.dot(A, known_solution)
     return A, B
-
-
-def solve_system(A, B):
-    x1, x2, x3, x4, x5 = symbols("x1 x2 x3 x4 x5")
-    equations = [
-        Eq(
-            A[i, 0] * x1 + A[i, 1] * x2 + A[i, 2] * x3 + A[i, 3] * x4 + A[i, 4] * x5,
-            B[i, 0],
-        )
-        for i in range(3)
-    ]
-    solution = linsolve(equations, x1, x2, x3, x4, x5)
-    return solution
 
 
 def to_latex(A, B, known_solution):
