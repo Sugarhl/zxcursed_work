@@ -1,9 +1,5 @@
 import nbformat
 
-from server.tasks.linear import generate_linear_system_latex
-from server.tasks.slae_with_parameter import generate_slae_with_param
-
-
 BEGIN_CELL = "BEGIN_CELL"
 END_CELL = "# END_CELL\n"
 CODE = "CODE"

@@ -68,4 +68,4 @@ def print_samples():
     print_sample_p3()
 
 
-print_samples()
+# print_samples()
