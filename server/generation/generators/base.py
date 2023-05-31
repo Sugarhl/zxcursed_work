@@ -1,13 +1,15 @@
 import enum
 from typing import List
 
-from server.generation.jupiter_from_py import create_jupiter, SAMPLE_SRC
+from server.generation.jupiter_from_py import create_jupiter
+from server.generation.samples import SAMPLE_SRC
 
 
 class GenType(enum.Enum):
     BASE = "BASE"
     PRACTICE_1 = "PRACTICE_1"
     PRACTICE_2 = "PRACTICE_2"
+    PRACTICE_3 = "PRACTICE_3"
     NOT_BASE = "NEW"
 
 

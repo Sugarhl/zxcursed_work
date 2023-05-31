@@ -643,3 +643,52 @@ FROM lab_management.login_creds
 WHERE lab_management.login_creds.username = %s]
 [parameters: ('string',)]
 (Background on this error at: https://sqlalche.me/e/14/rvf5)
+Traceback (most recent call last):
+  File "/usr/bin/uvicorn", line 33, in <module>
+    sys.exit(load_entry_point('uvicorn==0.15.0', 'console_scripts', 'uvicorn')())
+  File "/usr/lib/python3/dist-packages/click/core.py", line 1128, in __call__
+    return self.main(*args, **kwargs)
+  File "/usr/lib/python3/dist-packages/click/core.py", line 1053, in main
+    rv = self.invoke(ctx)
+  File "/usr/lib/python3/dist-packages/click/core.py", line 1395, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/usr/lib/python3/dist-packages/click/core.py", line 754, in invoke
+    return __callback(*args, **kwargs)
+  File "/usr/lib/python3/dist-packages/uvicorn/main.py", line 425, in main
+    run(app, **kwargs)
+  File "/usr/lib/python3/dist-packages/uvicorn/main.py", line 447, in run
+    server.run()
+  File "/usr/lib/python3/dist-packages/uvicorn/server.py", line 68, in run
+    return asyncio.run(self.serve(sockets=sockets))
+  File "/usr/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 646, in run_until_complete
+    return future.result()
+  File "/usr/lib/python3/dist-packages/uvicorn/server.py", line 76, in serve
+    config.load()
+  File "/usr/lib/python3/dist-packages/uvicorn/config.py", line 448, in load
+    self.loaded_app = import_from_string(self.app)
+  File "/usr/lib/python3/dist-packages/uvicorn/importer.py", line 24, in import_from_string
+    raise exc from None
+  File "/usr/lib/python3/dist-packages/uvicorn/importer.py", line 21, in import_from_string
+    module = importlib.import_module(module_str)
+  File "/usr/lib/python3.10/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/ukushuri/zxcursed_work/./server/main.py", line 1, in <module>
+    from fastapi import FastAPI
+ModuleNotFoundError: No module named 'fastapi'
+INFO:     Started server process [155199]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+postgresql+asyncpg://user:vikisah01@rc1b-8aubff9hb0epodpz.mdb.yandexcloud.net:6432/tasks_manager
+INFO:     93.158.190.173:57460 - "GET / HTTP/1.1" 200 OK
+INFO:     93.158.190.173:57460 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     93.158.190.173:57460 - "GET /docs HTTP/1.1" 200 OK
+INFO:     93.158.190.173:57460 - "GET /openapi.json HTTP/1.1" 200 OK

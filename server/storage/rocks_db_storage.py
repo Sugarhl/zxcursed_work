@@ -5,7 +5,7 @@ from typing import List
 import nbformat
 import rocksdb
 import uuid
-from server.generation.base import Variant
+from server.generation.generators.base import Variant
 
 from server.storage.base_file_storage import FileStorage
 from server.validation.checks import file_check

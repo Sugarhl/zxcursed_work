@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Enum, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from server.config import SCHEMA
-from server.generation.base import GenType
+from server.generation.generators.base import GenType
 
 
 from server.models.base import Base

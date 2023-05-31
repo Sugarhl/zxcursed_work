@@ -5,7 +5,7 @@ from typing import List
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from server.generation.base import Variant
+from server.generation.generators.base import Variant
 
 from server.models.lab import Lab
 from server.models.lab_variant import LabVariant

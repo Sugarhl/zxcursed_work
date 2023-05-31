@@ -1,12 +1,8 @@
 from typing import List
-from server.generation.base import NotebookGenerator, Variant
-
+from server.generation.generators.base import NotebookGenerator, Variant
 from server.generation.jupiter_from_py import create_jupiter
-
 from server.tasks.slae_with_parameter import generate_slae_with_param
-
-
-SAMPLE_P2 = "server/generation/samples/sample_P2"
+from server.generation.samples import SAMPLE_P2
 
 
 class Practice_2(NotebookGenerator):

@@ -16,7 +16,7 @@ from server.CRUD.lab_variant import (
 )
 from server.CRUD.student import get_student_checked, get_students_by_group
 
-from server.generation.base import Variant
+from server.generation.generators.base import Variant
 from server.generation.generate import generate_for_group
 
 from server.models.lab import Lab

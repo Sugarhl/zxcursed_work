@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from server.CRUD.group import get_group_checked
 from server.CRUD.lab_variant import get_all_lab_variants_by_student_id
-from server.generation.base import GenType
+from server.generation.generators.base import GenType
 
 import server.schemas as schemas
 from server.CRUD.lab import (

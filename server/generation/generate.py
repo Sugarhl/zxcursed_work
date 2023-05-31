@@ -2,9 +2,10 @@ import os
 from typing import List
 
 
-from server.generation.base import GenType, NotebookGenerator, Variant
-from server.generation.gen_1 import Practice_1
-from server.generation.gen_2 import Practice_2
+from server.generation.generators.base import GenType, NotebookGenerator, Variant
+from server.generation.generators.gen_1 import Practice_1
+from server.generation.generators.gen_2 import Practice_2
+from server.generation.generators.gen_3 import Practice_3
 from server.models.lab import Lab
 from server.models.group import Group
 from server.models.student import Student
@@ -24,6 +25,8 @@ def get_generator_by_type(type: GenType, prefix: str):
         return Practice_1(prefix=prefix)
     elif type == GenType.PRACTICE_2:
         return Practice_2(prefix=prefix)
+    elif type == GenType.PRACTICE_3:
+        return Practice_3(prefix=prefix)
 
 
 async def generate_for_group(
