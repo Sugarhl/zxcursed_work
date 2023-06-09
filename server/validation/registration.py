@@ -41,7 +41,8 @@ def validate_user_data(user_type: UserType, user_in: UserIn):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid username"
         )
-    if not user_in.email or not re.match(r"[^@]+@[^@]+\.[^@]+", user_in.email):
+    if (not user_in.email or len(user_in.email) > 220
+            or not re.match(r"[^@]+@[^@]+\.[^@]+", user_in.email)):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email"
         )

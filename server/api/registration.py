@@ -38,8 +38,7 @@ async def register(
         try:
             student = await create_student(db=db, student=new_user)
             user_id = student.id
-        except Exception as e:
-            print(e)
+        except Exception:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Bad student data",
