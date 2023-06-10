@@ -36,6 +36,7 @@ numpy = "*"
 sympy = "*"
 locust = "*"
 pytest-rerunfailures = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.10"
